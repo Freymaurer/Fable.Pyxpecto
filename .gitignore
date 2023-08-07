@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/dist/py
+/tests/Fable.Pytest.Tests/js
+/tests/Fable.Pytest.Tests/py

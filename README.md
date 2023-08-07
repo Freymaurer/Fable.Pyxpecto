@@ -1,5 +1,12 @@
 # Fable.Pytest
 
+## Ressources
+
+- [Pytest-Docs](https://docs.pytest.org/en/stable/how-to/capture-warnings.html)
+- [Fable.Mocha](https://github.com/Zaid-Ajaj/Fable.Mocha/blob/master/src/Mocha.fs)
+- [Fable Features](https://fable.io/Fable.Python/communicate/py-from-fable.html)
+- [Fable.Core.Testing](https://github.com/fable-compiler/Fable/blob/main/src/Fable.Core/Fable.Core.Util.fs)
+
 ## Development
 
 ### How was this set up
