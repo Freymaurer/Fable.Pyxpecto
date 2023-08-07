@@ -1,5 +1,5 @@
 ﻿namespace Fable.Pytest
 
-module Say =
-    let hello name =
-        printfn "Hello %s" name
+module Tests =
+
+    let hello name = sprintf "Hello %s" name

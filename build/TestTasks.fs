@@ -6,7 +6,7 @@ open Fake.DotNet
 open ProjectInfo
 open BasicTasks
 
-let runTests = BuildTask.create "RunTests" [clean; build] {
+let runTestsDotNet = BuildTask.create "RunTestsDotnet" [clean; build;] {
     testProjects
     |> Seq.iter (fun testProject ->
         Fake.DotNet.DotNet.test(fun testParams ->
@@ -21,24 +21,13 @@ let runTests = BuildTask.create "RunTests" [clean; build] {
     )
 }
 
-// to do: use this once we have actual tests
-let runTestsWithCodeCov = BuildTask.create "RunTestsWithCodeCov" [clean; build] {
-    let standardParams = Fake.DotNet.MSBuild.CliArguments.Create ()
-    testProjects
-    |> Seq.iter(fun testProject -> 
-        Fake.DotNet.DotNet.test(fun testParams ->
-            {
-                testParams with
-                    MSBuildParams = {
-                        standardParams with
-                            Properties = [
-                                "AltCover","true"
-                                "AltCoverCobertura","../../codeCov.xml"
-                                "AltCoverForce","true"
-                            ]
-                    };
-                    Logger = Some "console;verbosity=detailed"
-            }
-        ) testProject
-    )
+open Helpers
+
+let runTestsPy = BuildTask.create "RunTestsPy" [clean; build;] {
+    for test in ProjectInfo.pyTestProjects do
+        run pipenv $"run pytest {test}/Main.py" ""
+}
+
+let runTests = BuildTask.create "RunTests" [clean; build; runTestsDotNet; runTestsPy] { 
+    ()
 }

@@ -19,6 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Fable.Pytest.fsproj" />
+    <ProjectReference Include="..\..\src\Fable.Pytest.fsproj" />
   </ItemGroup>
 </Project>
