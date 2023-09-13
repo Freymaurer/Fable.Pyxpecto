@@ -1,6 +1,6 @@
-### 0.0.0+12fac2e (Released 2023-9-13)
+### 0.0.0+b5a2033 (Released 2023-9-13)
 * Additions:
-    * Create custom python test runner, based on Fable.Mocha and Expecto syntax. 
+    * Create custom python test runner, based on Fable.Mocha and Expecto syntax.
     * Setup project structure :tada:
     * Initial set up for RELEASE_Notes.md
 * Deletions:
