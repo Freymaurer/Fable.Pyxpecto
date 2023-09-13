@@ -69,4 +69,4 @@ Can be specified to run tests for specific environment.
 
 - `./build.cmd runtestsdotnet`
 - `./build.cmd runtestsjs`
-- `./build.cmd runtestspy` ([issue](https://github.com/fable-compiler/Fable/issues/3525) Currently failing, but commands can be run after another to make it work)
+- `./build.cmd runtestspy`

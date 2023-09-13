@@ -19,6 +19,7 @@ open ReleaseTasks
 let _ = TestTasks.runTestsPy
 let _ = TestTasks.runTestsDotNet
 let _ = TestTasks.runTestsJs
+let _ = ReleaseNotesTasks.updateReleaseNotes
 
 /// Full release of nuget package, git tag, and documentation for the stable version.
 let _release = 

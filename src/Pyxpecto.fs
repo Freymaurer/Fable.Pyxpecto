@@ -319,29 +319,29 @@ module Pyxpecto =
 
         let hasFocused = checkFocused test
 
-        let args = PyBindings.cmd_args
-
-        let failOnFocusedTestsArg = @"--fail-on-focused-tests" 
-
         /// If the flag '--fail-on-focused-tests' is given to py command AND focused tests exist it will fail.
         let verifyFocusedAllowed =
+            let args = PyBindings.cmd_args
+            let failOnFocusedTestsArg = @"--fail-on-focused-tests" 
             if Array.contains failOnFocusedTestsArg args && hasFocused then failwith $"{BColors.FAIL}Cannot run focused tests with '{failOnFocusedTestsArg}' commandline arg.{BColors.ENDC}"
-
-        member private this.printSuccessMsg (name: string) = 
-            let focused = if this.HasFocused then "💎 | " else ""
-            printfn $"{focused}✔️ {name}" 
-        member private this.printErrorMsg (name: string) (msg: string) = 
-            let focused = if this.HasFocused then "💎 | " else ""
-            printfn $"{focused}❌ {name}\n\b{msg}" 
-        member private this.printSkipPendingMsg (name: string) = printfn "🚧 skipping '%s' due to it being marked as pending" name
 
         member val SuccessfulTests = 0 with get, set
         member val FailedTests = 0 with get, set
         member val IgnoredTests = 0 with get, set
         member val HasFocused = hasFocused with get
+        member val ErrorMessages = ResizeArray() with get, set
 
         member this.SumTests
             with get() = this.SuccessfulTests + this.FailedTests
+
+        member private this.printSuccessMsg (name: string) = 
+            let focused = if this.HasFocused then "💎 | " else ""
+            printfn $"{focused}✔️ {name}" 
+        member private this.printErrorMsg (name: string) (msg: string) = 
+            this.ErrorMessages.Add(name, msg)
+            let focused = if this.HasFocused then "💎 | " else ""
+            printfn $"{focused}❌ {name}\n\b{msg}" 
+        member private this.printSkipPendingMsg (name: string) = printfn "🚧 skipping '%s' due to it being marked as pending" name
 
         member this.RunSyncTest(name: string, body: unit -> unit) = 
             try 
@@ -400,14 +400,19 @@ module Pyxpecto =
         let innerMsgString = $"""{BColors.INFOBLUE}{runner.SumTests}{BColors.ENDC} tests run - {BColors.OKGREEN}{runner.SuccessfulTests}{BColors.ENDC} passed, {BColors.INFOBLUE}{runner.IgnoredTests}{BColors.ENDC} ignored, {BColors.FAIL}{runner.FailedTests}{BColors.ENDC} failed"""
         let sep = "-------------------------------------------------------------------------------"
         let sb = System.Text.StringBuilder()
+        sb.AppendLine() |> ignore
+        for i in 1 .. runner.ErrorMessages.Count do
+            let name, msg = runner.ErrorMessages.[i-1]
+            sb.AppendLine $"{BColors.FAIL}{i}) {name}{BColors.ENDC}\n\b{msg}" |> ignore
+        sb.AppendLine() |> ignore
         let msg = sb.AppendLine(sep).AppendLine(innerMsgString).AppendLine(sep).ToString()
         printfn "%s" msg
         match runner.FailedTests with
         | 1 ->
-            printfn $"{BColors.FAIL}{runner.FailedTests} test failed!{BColors.ENDC}"
+            Exception($"{BColors.FAIL}{runner.FailedTests} test failed!{BColors.ENDC}") |> raise
             1
         | failedTests when failedTests > 1 ->
-            printfn $"{BColors.FAIL}{failedTests} tests failed!{BColors.ENDC}"
+            Exception($"{BColors.FAIL}{failedTests} tests failed!{BColors.ENDC}") |> raise
             1
         | _ ->
             printfn $"{BColors.OKGREEN}Success!{BColors.ENDC}"
