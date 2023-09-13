@@ -399,3 +399,5 @@ FodyWeavers.xsd
 /dist/py
 /tests/Fable.Pytest.Tests/js
 /tests/Fable.Pytest.Tests/py
+/tests/js
+/tests/py
