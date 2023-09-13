@@ -4,6 +4,15 @@
 
 Fable python library for testing. Inspired by the popular Expecto library for F# and adopts the testList, testCase and testCaseAsync primitives for defining tests.
 
+## Install
+
+![Nuget](https://img.shields.io/nuget/v/Fable.Pyxpecto?label=Nuget)
+
+From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto/0.0.0) with:
+
+- `paket add Fable.Pyxpecto --version 0.0.0`
+- `<PackageReference Include="Fable.Pyxpecto" Version="0.0.0" />`
+
 ## Running tests
 
 Use the following syntax to automatically switch between Expecto, Fable.Mocha and Pyxpecto:
