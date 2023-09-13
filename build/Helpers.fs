@@ -95,10 +95,6 @@ let py =
 
     createProcess path
 
-let pipenv cmd execPath =
-    let cmd = "-m pipenv " + cmd
-    py cmd execPath
-
 let run proc arg dir =
     proc arg dir
     |> Proc.run

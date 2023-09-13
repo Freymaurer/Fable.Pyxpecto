@@ -1,0 +1,26 @@
+{
+  "name": "fable.pyxpecto",
+  "version": "1.0.0",
+  "description": "No package, just for mocha testing",
+  "main": "-",
+  "directories": {
+    "test": "tests"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "mocha tests/js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Freymaurer/Fable.Pyxpecto.git"
+  },
+  "author": "Kevin Frey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Freymaurer/Fable.Pyxpecto/issues"
+  },
+  "homepage": "https://github.com/Freymaurer/Fable.Pyxpecto#readme",
+  "dependencies": {
+    "mocha": "^10.2.0"
+  }
+}

@@ -2,17 +2,12 @@
 
 open Fake.Core
 
-let project = "Fable.Pytest"
+let project = "Fable.Pyxpecto"
 
 let testProjects = 
     [
         // add relative paths (from project root) to your testprojects here
-        "tests/Fable.Pytest.Tests"
-    ]
-
-let pyTestProjects =
-    [
-        "tests/NativeTests"
+        "tests"
     ]
 
 let solutionFile  = $"{project}.sln"

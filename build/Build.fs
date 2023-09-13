@@ -15,9 +15,10 @@ open BasicTasks
 open TestTasks
 open PackageTasks
 open ReleaseTasks
-open FableTasks
 
-let _ = FableTasks.fable
+let _ = TestTasks.runTestsPy
+let _ = TestTasks.runTestsDotNet
+let _ = TestTasks.runTestsJs
 
 /// Full release of nuget package, git tag, and documentation for the stable version.
 let _release = 
