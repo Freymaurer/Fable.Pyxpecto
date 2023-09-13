@@ -6,6 +6,10 @@ Fable python library for testing. Inspired by the popular Expecto library for F#
 
 ![pyxpecto](https://github.com/Freymaurer/Fable.Pyxpecto/assets/39732517/c5d09db3-8f63-4372-8655-6330c8a00af1)
 
+## Features
+
+### Reuse Expecto/Fable.Mocha Tests
+
 ```fsharp
 /// Reuse unit tests from Expecto and Fable.Mocha
 let tests_basic = testList "Basic" [
@@ -23,6 +27,41 @@ let tests_basic = testList "Basic" [
         Expect.isOk actual "Should be Ok"
 ]
 ```
+### Pending
+
+Pending tests will not be run, but displayed as "skipped".
+
+```fsharp
+ptestCase "skipping this one" <| fun _ ->
+    failwith "Shouldn't be running this test"
+
+ptestCaseAsync "skipping this one async" <|
+    async {
+        failwith "Shouldn't be running this test"
+    }
+```
+
+### Focused
+
+If there are any focused tests all other tests will not be run and are displayed as "skipped".
+
+> 👀 Passing the `--fail-on-focused-tests` command line argument will make the runner fail if focused tests exist. This is used to avoid passing CI chains, when accidently pushing focused tests.
+
+```fsharp
+let focusedTestsCases =
+    testList "Focused" [
+        ftestCase "Focused sync test" <| fun _ ->
+            Expect.equal (1 + 1) 2 "Should be equal"
+        ftestCaseAsync "Focused async test" <|
+            async {
+                Expect.equal (1 + 1) 2 "Should be equal"
+            }
+    ]
+```
+
+### Sequential Tests
+
+Actually all tests run with this library will be sequential. The function is only added to comply with Expecto syntax.
 
 ## Install
 
