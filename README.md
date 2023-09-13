@@ -4,6 +4,26 @@
 
 Fable python library for testing. Inspired by the popular Expecto library for F# and adopts the testList, testCase and testCaseAsync primitives for defining tests.
 
+![pyxpecto](https://github.com/Freymaurer/Fable.Pyxpecto/assets/39732517/c5d09db3-8f63-4372-8655-6330c8a00af1)
+
+```fsharp
+/// Reuse unit tests from Expecto and Fable.Mocha
+let tests_basic = testList "Basic" [
+    testCase "testCase works with numbers" <| fun () ->
+        Expect.equal (1 + 1) 2 "Should be equal"
+
+    testCase "isFalse works" <| fun () ->
+        Expect.isFalse (1 = 2) "Should be equal"
+
+    testCase "areEqual with msg" <| fun _ ->
+        Expect.equal 2 2 "They are the same"
+
+    testCase "isOk works correctly" <| fun _ ->
+        let actual = Ok true
+        Expect.isOk actual "Should be Ok"
+]
+```
+
 ## Install
 
 ![Nuget](https://img.shields.io/nuget/v/Fable.Pyxpecto?label=Nuget)
