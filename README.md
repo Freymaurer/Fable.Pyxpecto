@@ -46,6 +46,8 @@ ptestCaseAsync "skipping this one async" <|
 If there are any focused tests all other tests will not be run and are displayed as "skipped".
 
 > 👀 Passing the `--fail-on-focused-tests` command line argument will make the runner fail if focused tests exist. This is used to avoid passing CI chains, when accidently pushing focused tests.
+>
+> Example `py my_focused_tests_file.py --fail-on-focused-tests` will fail.
 
 ```fsharp
 let focusedTestsCases =
