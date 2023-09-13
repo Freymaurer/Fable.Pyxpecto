@@ -67,7 +67,7 @@ Actually all tests run with this library will be sequential. The function is onl
 
 ## Install
 
-![Nuget](https://img.shields.io/nuget/v/Fable.Pyxpecto?label=Nuget)
+![Nuget](https://img.shields.io/nuget/dt/Fable.Pyxpecto?label=Nuget)
 
 From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto/0.0.0) with:
 
