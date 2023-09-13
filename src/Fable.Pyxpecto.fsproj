@@ -5,7 +5,17 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
+	<PropertyGroup>
+		<Authors>Kevin Frey</Authors>
+		<Description>Fable python unit tests, like Fable.Mocha with Expecto syntax.</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageTags>fsharp fable fable-library fable-python testing unit-testing</PackageTags>
+		<PackageProjectUrl>https://github.com/Freymaurer/Fable.Pyxpecto</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Freymaurer/Fable.Pyxpecto</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+
+	<ItemGroup>
     <Compile Include="Pyxpecto.fs" />
   </ItemGroup>
 
@@ -13,7 +23,6 @@
     <PackageReference Include="Fable.Core" Version="4.0.0" />
     <PackageReference Include="Fable.Python" Version="4.1.3" />
   </ItemGroup>
-
 
 	<ItemGroup>
 		<Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
