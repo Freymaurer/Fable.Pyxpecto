@@ -23,7 +23,7 @@ let runTestsPy = BuildTask.create "RunTestsPy" [clean; build;] {
 let runTestsJs = BuildTask.create "RunTestsJs" [clean; build;] {
     for test in ProjectInfo.testProjects do
         run dotnet $"fable {test} -o {test}/js" ""
-        run npm $"test" ""
+        run npx $"mocha {test}/js --timeout 20000" ""
 }
 
 let runTests = BuildTask.create "RunTests" [clean; build; runTestsDotNet; runTestsPy; runTestsJs] { 

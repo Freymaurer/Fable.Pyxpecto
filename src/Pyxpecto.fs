@@ -15,6 +15,8 @@ type TestCase =
     | TestList of string * TestCase list
     | TestListSequential of string * TestCase list
 
+exception ExpectError of exn 
+
 type Accuracy = { absolute: float; relative: float }
 
 module Accuracy =
@@ -114,9 +116,6 @@ module Test =
     let inline ptestAsync name =
         TestAsyncBuilder (name, Pending)
 
-    let failtest msg = failwith msg
-    let failtestf fmt msg = failwithf fmt msg
-
 [<RequireQualifiedAccess>]
 module Expect =
 
@@ -127,7 +126,7 @@ module Expect =
             let errorMsg =
                 $"    Expected: {BColors.OKCYAN}{expected}{BColors.ENDC} \n\b    Actual: {BColors.FAIL}{actual}{BColors.ENDC} \n\b    Message: {msg}"
 
-            raise (Exception(errorMsg))
+            raise (ExpectError(failwith errorMsg))
     let notEqual actual expected msg : unit =
         Assert.NotEqual(actual, expected, msg)
     let private isNull' cond =
@@ -136,68 +135,68 @@ module Expect =
         | _ -> false
     let isNull cond = equal (isNull' cond) true
     let isNotNull cond = notEqual (isNull' cond) true
-    let isNotNaN cond msg = if Double.IsNaN cond then failwith msg
-    let isNotInfinity cond msg = if Double.IsInfinity cond then failwith msg
+    let isNotNaN cond msg = if Double.IsNaN cond then raise <| ExpectError(failwith msg)
+    let isNotInfinity cond msg = if Double.IsInfinity cond then raise <| ExpectError(failwith msg)
     let isTrue cond = equal cond true
     let isFalse cond = equal cond false
     let isZero cond = equal cond 0
-    let isEmpty (x: 'a seq) msg = if not (Seq.isEmpty x) then failwithf "%s. Should be empty." msg
+    let isEmpty (x: 'a seq) msg = if not (Seq.isEmpty x) then raise <| ExpectError(failwithf "%s. Should be empty." msg)
     let pass() = equal true true "The test passed"
     let passWithMsg (message: string) = equal true true message
-    let exists (x: 'a seq) (a: 'a -> bool) msg = if not (Seq.exists a x) then failwith msg
-    let all (x: 'a seq) (a: 'a -> bool) msg = if not (Seq.forall a x) then failwith msg
+    let exists (x: 'a seq) (a: 'a -> bool) msg = if not (Seq.exists a x) then raise <| ExpectError(failwith msg)
+    let all (x: 'a seq) (a: 'a -> bool) msg = if not (Seq.forall a x) then raise <| ExpectError(failwith msg)
     /// Expect the passed sequence not to be empty.
-    let isNonEmpty (x: 'a seq) msg = if Seq.isEmpty x then failwithf "%s. Should not be empty." msg
+    let isNonEmpty (x: 'a seq) msg = if Seq.isEmpty x then raise <| ExpectError(failwithf "%s. Should not be empty." msg)
     /// Expects x to be not null nor empty
     let isNotEmpty (x: 'a seq) msg =
         isNotNull x msg
         isNonEmpty x msg
     /// Expects x to be a sequence of length `number`
-    let hasLength x number msg = equal (Seq.length x) number (sprintf "%s. Expected %A to have length %i" msg x number)
+    let hasLength x number msg = equal (Seq.length x) number (failwithf "%s. Expected %A to have length %i" msg x number)
     /// Expects x to be Result.Ok
     let isOk x message =
         match x with
         | Ok _ -> passWithMsg message
-        | Error x' -> failwithf "%s. Expected Ok, was Error(\"%A\")." message x'
+        | Error x' -> raise <| ExpectError(failwithf "%s. Expected Ok, was Error(\"%A\")." message x')
     /// Expects the value to be a Result.Ok value and returns it or fails the test
     let wantOk x message =
         match x with
         | Ok x' ->
             passWithMsg message
             x'
-        | Error x' -> failwithf "%s. Expected Ok, was Error(\"%A\")." message x'
+        | Error x' -> raise <| ExpectError(failwithf "%s. Expected Ok, was Error(\"%A\")." message x')
     let stringContains (subject: string) (substring: string) message =
         if not (subject.Contains(substring))
-        then failwithf "%s. Expected subject string '%s' to contain substring '%s'." message subject substring
+        then raise <| ExpectError(failwithf "%s. Expected subject string '%s' to contain substring '%s'." message subject substring)
         else passWithMsg message
 
     /// Expects x to be Result.Error
     let isError x message =
         match x with
         | Error _ -> passWithMsg message
-        | Ok x' -> failwithf "%s. Expected Error _, was Ok(%A)." message x'
+        | Ok x' -> raise <| ExpectError(failwithf "%s. Expected Error _, was Ok(%A)." message x')
     let isSome x message =
         match x with
         | Some _ -> passWithMsg message
-        | None -> failwithf "%s. Expected Some _, was None." message
+        | None -> raise <| ExpectError(failwithf "%s. Expected Some _, was None." message)
     /// Expects the value to be a Some x value and returns x or fails the test
     let wantSome x message =
         match x with
         | Some x' ->
             passWithMsg message
             x'
-        | None -> failwithf "%s. Expected Some _, was None." message
+        | None -> raise <| ExpectError(failwithf "%s. Expected Some _, was None." message)
     /// Expects the value to be a Result.Error value and returns it or fails the test
     let wantError (x: Result<'a, 'b>) (message: string) =
         match x with
         | Error value ->
             passWithMsg message
             value
-        | Ok value -> failwithf "%s. Expected Error _, was Ok(%A)." message value
+        | Ok value -> raise <| ExpectError(failwithf "%s. Expected Error _, was Ok(%A)." message value)
     let isNone x message =
         match x with
         | None -> passWithMsg message
-        | Some x' -> failwithf "%s. Expected None, was Some(%A)." message x'
+        | Some x' -> raise <| ExpectError(failwithf "%s. Expected None, was Some(%A)." message x')
     let private throws' f =
         try f ()
             None
@@ -206,12 +205,12 @@ module Expect =
     /// Expects the passed function to throw an exception
     let throws f msg =
         match throws' f with
-        | None -> failwithf "%s. Expected f to throw." msg
+        | None -> raise <| ExpectError(failwithf "%s. Expected f to throw." msg)
         | Some _ -> ()
     /// Expects the passed function to throw, then calls `cont` with the exception
     let throwsC f cont =
         match throws' f with
-        | None -> failwithf "Expected f to throw."
+        | None -> raise <| ExpectError(failwithf "Expected f to throw.")
         | Some exn -> cont exn
 
     /// Expects the `actual` sequence to contain all elements from `expected`
@@ -233,27 +232,30 @@ module Expect =
         if List.isEmpty missingEls then
             ()
         else
-            sprintf
+            failwithf
                 "%s. Sequence `actual` does not contain all `expected` elements. Missing elements from `actual`: %A. Extra elements in `actual`: %A"
                 message
                 missingEls
                 extraEls
-            |> failtest
+            |> ExpectError |> raise
 
     /// Expects `actual` and `expected` (that are both floats) to be within a
     /// given `accuracy`.
     let floatClose accuracy actual expected message =
         if Double.IsInfinity actual then
-            failtestf "%s. Expected actual to not be infinity, but it was." message
+            failwithf "%s. Expected actual to not be infinity, but it was." message
+            |> ExpectError |> raise
         elif Double.IsInfinity expected then
-            failtestf "%s. Expected expected to not be infinity, but it was." message
+            failwithf "%s. Expected expected to not be infinity, but it was." message
+            |> ExpectError |> raise
         elif Accuracy.areClose accuracy actual expected |> not then
-            failtestf
-                "%s. Expected difference to be less than %.20g for accuracy {absolute=%.20g; relative=%.20g}, but was %.20g. actual=%.20g expected=%.20g"
-                message (Accuracy.areCloseRhs accuracy actual expected)
+            failwithf "%s. Expected difference to be less than %.20g for accuracy {absolute=%.20g; relative=%.20g}, but was %.20g. actual=%.20g expected=%.20g"
+                message 
+                (Accuracy.areCloseRhs accuracy actual expected)
                 accuracy.absolute accuracy.relative
                 (Accuracy.areCloseLhs actual expected)
                 actual expected
+            |> ExpectError |> raise
 
     /// Expects `actual` to be less than `expected` or to be within a
     /// given `accuracy`.
@@ -328,43 +330,52 @@ module Pyxpecto =
         member val SuccessfulTests = 0 with get, set
         member val FailedTests = 0 with get, set
         member val IgnoredTests = 0 with get, set
+        member val ErrorTests = 0 with get, set
         member val HasFocused = hasFocused with get
         member val ErrorMessages = ResizeArray() with get, set
 
         member this.SumTests
-            with get() = this.SuccessfulTests + this.FailedTests
+            with get() = this.SuccessfulTests + this.FailedTests + this.ErrorTests
 
         member private this.printSuccessMsg (name: string) = 
             let focused = if this.HasFocused then "💎 | " else ""
+            this.SuccessfulTests <- this.SuccessfulTests + 1
             printfn $"{focused}✔️ {name}" 
-        member private this.printErrorMsg (name: string) (msg: string) = 
+        member private this.printErrorMsg (name: string) (msg: string) (isTrueError: bool)= 
             this.ErrorMessages.Add(name, msg)
             let focused = if this.HasFocused then "💎 | " else ""
-            printfn $"{focused}❌ {name}\n\b{msg}" 
+            let errorAgainstFailHandling = 
+                if isTrueError then 
+                    this.ErrorTests <- this.ErrorTests + 1
+                    "⚠️" 
+                else 
+                    this.FailedTests <- this.FailedTests + 1
+                    "❌"
+            printfn $"{focused}{errorAgainstFailHandling} {name}\n\b{msg}" 
         member private this.printSkipPendingMsg (name: string) = printfn "🚧 skipping '%s' due to it being marked as pending" name
 
         member this.RunSyncTest(name: string, body: unit -> unit) = 
             try 
                 body()
-                this.SuccessfulTests <- this.SuccessfulTests + 1
                 this.printSuccessMsg name
             with
-                | e -> 
-                    this.FailedTests <- this.FailedTests + 1
-                    this.printErrorMsg name e.Message
+                | :? ExpectError as exn ->
+                    this.printErrorMsg name exn.Message false
+                | e ->
+                    this.printErrorMsg name e.Message true
                     
         member this.RunAsyncTest(name, body: Async<unit>) =
             try
                 async {
                     do! body
-                    this.SuccessfulTests <- this.SuccessfulTests + 1
                     this.printSuccessMsg name
                 }
                 |> Async.RunSynchronously
             with
+                | ExpectError(exn) ->
+                    this.printErrorMsg name exn.Message false
                 | e ->
-                    this.FailedTests <- this.FailedTests + 1
-                    this.printErrorMsg name e.Message
+                    this.printErrorMsg name e.Message true
 
         member this.SkipPendingTest(name) =
             this.IgnoredTests <- this.IgnoredTests + 1
@@ -397,7 +408,7 @@ module Pyxpecto =
                     |> List.iter (run runner)
         printfn "🚀 start running tests ..."
         run runner test
-        let innerMsgString = $"""{BColors.INFOBLUE}{runner.SumTests}{BColors.ENDC} tests run - {BColors.OKGREEN}{runner.SuccessfulTests}{BColors.ENDC} passed, {BColors.INFOBLUE}{runner.IgnoredTests}{BColors.ENDC} ignored, {BColors.FAIL}{runner.FailedTests}{BColors.ENDC} failed"""
+        let innerMsgString = $"""{BColors.INFOBLUE}{runner.SumTests}{BColors.ENDC} tests run - {BColors.INFOBLUE}{runner.SuccessfulTests}{BColors.ENDC} passed, {BColors.INFOBLUE}{runner.IgnoredTests}{BColors.ENDC} ignored, {BColors.INFOBLUE}{runner.FailedTests}{BColors.ENDC} failed, {BColors.INFOBLUE}{runner.ErrorTests}{BColors.ENDC} errored"""
         let sep = "-------------------------------------------------------------------------------"
         let sb = System.Text.StringBuilder()
         sb.AppendLine() |> ignore
@@ -407,12 +418,12 @@ module Pyxpecto =
         sb.AppendLine() |> ignore
         let msg = sb.AppendLine(sep).AppendLine(innerMsgString).AppendLine(sep).ToString()
         printfn "%s" msg
-        match runner.FailedTests with
-        | 1 ->
-            Exception($"{BColors.FAIL}{runner.FailedTests} test failed!{BColors.ENDC}") |> raise
-            1
-        | failedTests when failedTests > 1 ->
-            Exception($"{BColors.FAIL}{failedTests} tests failed!{BColors.ENDC}") |> raise
+        match runner.ErrorTests, runner.FailedTests with
+        | errors,_ when errors > 0 ->
+            Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> raise
+            2
+        | _,failed when failed > 0 ->
+            Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> raise
             1
         | _ ->
             printfn $"{BColors.OKGREEN}Success!{BColors.ENDC}"

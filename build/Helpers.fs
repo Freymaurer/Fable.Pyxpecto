@@ -95,6 +95,16 @@ let py =
 
     createProcess path
 
+let npx =
+    let path =
+        match ProcessUtils.tryFindFileOnPath "npx" with
+        | Some path -> path
+        | None ->
+            "npx was not found in path. Please install it and make sure it's available from your path."
+            |> failwith
+
+    createProcess path
+
 let run proc arg dir =
     proc arg dir
     |> Proc.run

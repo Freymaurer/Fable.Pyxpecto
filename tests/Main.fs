@@ -298,7 +298,7 @@ let nestedTestCase =
         ]
     ]
 
-let focusedTestsCases =
+let focusedTestCases =
     testList "Focused" [
         ftestCase "Focused sync test" <| fun _ ->
             Expect.equal (1 + 1) 2 "Should be equal"
@@ -308,6 +308,24 @@ let focusedTestsCases =
             }
     ]
 
+//let errorTestCases =
+//    testList "Error" [
+//        ftestCase "Error binding test" <| fun _ ->
+//            let actual = 5 / 0
+//            Expect.equal (actual) 0 "Inside Binding"
+//        ftestCaseAsync "Error async binding test" <|
+//            async {
+//                let actual = 5 / 0
+//                Expect.equal (actual) 2 "Inside Binding async"
+//            }
+//        ftestCase "Error expect test" <| fun _ ->
+//            Expect.equal (5 / 0) 0 "Inside Expect"
+//        ftestCaseAsync "Error async expect test" <|
+//            async {
+//                Expect.equal (5 / 0) 2 "Inside Expect async"
+//            }
+//    ]
+
 let all = 
     testList "All" [
         tests_sequential
@@ -315,7 +333,8 @@ let all =
         secondModuleTests
         structuralEqualityTests
         nestedTestCase
-        //focusedTestsCases
+        //focusedTestCases
+        //errorTestCases
     ]
 
 [<EntryPoint>]
