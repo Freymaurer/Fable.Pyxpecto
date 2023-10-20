@@ -1,5 +1,7 @@
 ﻿# Fable.Pyxpecto
 
+![Nuget](https://img.shields.io/nuget/dt/Fable.Pyxpecto?label=Nuget)
+
 > This repository is heavily inspired by [Fable.Mocha](https://github.com/Zaid-Ajaj/Fable.Mocha/) by the awesome [@Zaid-Ajaj](https://github.com/Zaid-Ajaj).
 
 Fable python library for testing. Inspired by the popular Expecto library for F# and adopts the testList, testCase and testCaseAsync primitives for defining tests.
@@ -66,8 +68,6 @@ let focusedTestsCases =
 Actually all tests run with this library will be sequential. The function is only added to comply with Expecto syntax.
 
 ## Install
-
-![Nuget](https://img.shields.io/nuget/dt/Fable.Pyxpecto?label=Nuget)
 
 From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto/0.0.0) with:
 
