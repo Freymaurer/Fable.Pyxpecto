@@ -85,9 +85,9 @@ let npm =
 
     createProcess npmPath
 
-let py =
+let python =
     let path =
-        match ProcessUtils.tryFindFileOnPath "py" with
+        match ProcessUtils.tryFindFileOnPath "python" with
         | Some path -> path
         | None ->
             "py was not found in path. Please install it and make sure it's available from your path."
