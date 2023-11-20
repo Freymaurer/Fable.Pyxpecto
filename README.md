@@ -69,9 +69,9 @@ Actually all tests run with this library will be sequential. The function is onl
 
 ## Install
 
-From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto/0.0.0) with:
+From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto) with:
 
-- `paket add Fable.Pyxpecto --version 0.0.0`
+- `paket add Fable.Pyxpecto`
 - `<PackageReference Include="Fable.Pyxpecto" Version="0.0.0" />`
 
 ## Running tests
