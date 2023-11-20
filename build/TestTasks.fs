@@ -17,7 +17,7 @@ let runTestsDotNet = BuildTask.create "RunTestsDotnet" [clean; build;] {
 let runTestsPy = BuildTask.create "RunTestsPy" [clean; build;] {
     for test in ProjectInfo.testProjects do
         run dotnet $"fable {test} --lang py -o {test}/py" ""
-        run py $"{test}/py/main.py" ""
+        run python $"{test}/py/main.py" ""
 }
 
 let runTestsJs = BuildTask.create "RunTestsJs" [clean; build;] {
