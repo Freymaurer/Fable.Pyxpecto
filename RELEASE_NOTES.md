@@ -1,4 +1,18 @@
+### 0.3.0+f29c1ee (Released 2023-11-20)
+* Additions:
+    * [[#cbd0592](https://github.com/Freymaurer/Fable.Pyxpecto/commit/cbd0592365b4cfdd3a64121313f941625e82e5f6)] Merge pull request #2 from MangelMaxime/patch-1
+* Bugfixes:
+    * [[#f29c1ee](https://github.com/Freymaurer/Fable.Pyxpecto/commit/f29c1eed7a3c9081f5146d8f36bb042e1ffe7668)] Fix correct Error handling :bug: + change output to just exitcode + print
+
 ### 0.2.0+0de7cba (Released 2023-11-20)
+* Additions:
+    * [[#64e11e9](https://github.com/Freymaurer/Fable.Pyxpecto/commit/64e11e9f7c669cfaef8556f0f87ea0572b2cb9c6)] Update README.md
+    * [[#90eceba](https://github.com/Freymaurer/Fable.Pyxpecto/commit/90eceba89a486373dc4fe07516af772d0ea97de6)] Change target framework to `netstandard2.0`
+    * [[#60eab82](https://github.com/Freymaurer/Fable.Pyxpecto/commit/60eab82b154d3f902d2751f187a2d6fcbd1d6a0a)] Lower FSharp.Core requirement
+    * [[#88346a5](https://github.com/Freymaurer/Fable.Pyxpecto/commit/88346a5dcb709fb02bdf691a85fcd14c043f176d)] Add a script for running the build system from Unix
+    * [[#9a4fc58](https://github.com/Freymaurer/Fable.Pyxpecto/commit/9a4fc58ff34eb758df65a7b641f1a3ea3b072bb4)] Use standard `python` exe
+* Deletions:
+    * [[#58664d4](https://github.com/Freymaurer/Fable.Pyxpecto/commit/58664d454125ef4870af070fe042ac2807d656f0)] Update dependencies to remove warnings and incompatibilities
 
 ### 0.1.0+0de7cba (Released 2023-9-21)
 * Additions:
