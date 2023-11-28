@@ -1,3 +1,8 @@
+### 0.4.0+97cc5e3 (Released 2023-11-28)
+* Bugfixes:
+    * [[#97cc5e3](https://github.com/Freymaurer/Fable.Pyxpecto/commit/97cc5e3b592e0a9a5aa7ab9b5ec15931155c4454)] Fix flattening testList names bug :bug:
+    * [[#d96563a](https://github.com/Freymaurer/Fable.Pyxpecto/commit/d96563af439dd18dc489edb82d0762b09822aacf)] Fix release pipeline and update version
+
 ### 0.3.0+f29c1ee (Released 2023-11-20)
 * Additions:
     * [[#cbd0592](https://github.com/Freymaurer/Fable.Pyxpecto/commit/cbd0592365b4cfdd3a64121313f941625e82e5f6)] Merge pull request #2 from MangelMaxime/patch-1
