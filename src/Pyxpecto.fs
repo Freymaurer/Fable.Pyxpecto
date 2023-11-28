@@ -281,20 +281,28 @@ module Pyxpecto =
         | TestListSequential(_, tests) -> List.exists isFocused tests
         | _ -> false
 
-    let rec private flattenTests lastName = function
-        | SyncTest(name, test, state) ->
-            let modifiedName = if String.IsNullOrWhiteSpace lastName then name else sprintf "%s - %s" lastName name
-            [ SyncTest(modifiedName, test, state) ]
+    let private flattenTests lastName testCase =
+        let appendNames (lastName: string) (newName: string) = if String.IsNullOrWhiteSpace lastName then newName else sprintf "%s - %s" lastName newName
+        let rec loop lastName testCase = 
+            match testCase with
+            | SyncTest(name, test, state) ->
+                let modifiedName = appendNames lastName name
+                [ SyncTest(modifiedName, test, state) ]
 
-        | AsyncTest(name, test, state) ->
-            let modifiedName = if String.IsNullOrWhiteSpace lastName then name else sprintf "%s - %s" lastName name
-            [ AsyncTest(modifiedName, test, state) ]
+            | AsyncTest(name, test, state) ->
+                let modifiedName = appendNames lastName name
+                [ AsyncTest(modifiedName, test, state) ]
 
-        | TestList (name, tests) ->
-            [ for test in tests do yield! flattenTests name test ]
+            | TestList (name, tests) ->
+                [ for test in tests do 
+                    let modifiedName = appendNames lastName name
+                    yield! loop modifiedName test ]
 
-        | TestListSequential (name, tests) ->
-            [ for test in tests do yield! flattenTests name test ]
+            | TestListSequential (name, tests) ->
+                [ for test in tests do 
+                    let modifiedName = appendNames lastName name
+                    yield! loop modifiedName test ]
+        loop lastName testCase
 
     let checkFocused (test: TestCase) = 
         let mutable hasFocused: bool = false
@@ -352,12 +360,12 @@ module Pyxpecto =
             let errorAgainstFailHandling = 
                 if isTrueError then 
                     this.ErrorTests <- this.ErrorTests + 1
-                    "⚠️" 
+                    "❌" 
                 else 
                     this.FailedTests <- this.FailedTests + 1
-                    "❌"
+                    "🚫"
             printfn $"{focused}{errorAgainstFailHandling} {name}\n\b{msg}" 
-        member private this.printSkipPendingMsg (name: string) = printfn "🚧 skipping '%s' due to it being marked as pending" name
+        member private this.printSkipPendingMsg (name: string) = printfn "🚧 skipping '%s' ... pending" name
 
         member this.RunSyncTest(name: string, body: unit -> unit) = 
             try 
