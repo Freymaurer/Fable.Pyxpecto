@@ -1,6 +1,6 @@
 ﻿# Fable.Pyxpecto
 
-![Nuget](https://img.shields.io/nuget/dt/Fable.Pyxpecto?label=Nuget)
+<a href="https://www.nuget.org/packages/Fable.Pyxpecto" >![Nuget](https://img.shields.io/nuget/dt/Fable.Pyxpecto?label=Nuget)</a>
 
 > This repository is heavily inspired by [Fable.Mocha](https://github.com/Zaid-Ajaj/Fable.Mocha/) by the awesome [@Zaid-Ajaj](https://github.com/Zaid-Ajaj).
 
@@ -69,9 +69,9 @@ Actually all tests run with this library will be sequential. The function is onl
 
 ## Install
 
-From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto/0.0.0) with:
+From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto) with:
 
-- `paket add Fable.Pyxpecto --version 0.0.0`
+- `paket add Fable.Pyxpecto`
 - `<PackageReference Include="Fable.Pyxpecto" Version="0.0.0" />`
 
 ## Running tests
@@ -104,10 +104,17 @@ let main argv =
     #endif
 ```
 
+⚠️ If you want to use Pyxpecto in combination with Fable.Mocha you need to conditionally set Fable.Mocha dependency as shown below. Without this fable will try to transpile Fable.Mocha to python, which will result in errors.
+
+```xml
+<!-- .fsproj file-->
+<PackageReference Condition="'$(FABLE_COMPILER_JAVASCRIPT)' == 'true'" Include="Fable.Mocha" Version="2.17.0" />
+```
+
 > 👀 Everything in curly braces are placeholders
 
 1. Transpile test project to python `dotnet fable {path/to/tests} --lang py -o {path/to/tests}/py`
-2. Run tests `py {path/to/tests}/{EntryFileName.py}`
+2. Run tests `python {path/to/tests}/{EntryFileName.py}`
 
 ## Development
 
