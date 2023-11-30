@@ -3,7 +3,23 @@
 open System
 open Fable.Core
 
+#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+open Fable.Core.JsInterop
+#endif
+
+module TranspilerHelper =
+    
+    // This is possibly the most magic
+    #if !FABLE_COMPILER_JAVASCRIPT && !FABLE_COMPILER_TYPESCRIPT
+    let (!!) (any: 'a) = any
+    #endif
+
+    let private x = 0 // placeholder to make it not error in not js/ts
+
+open TranspilerHelper
+
 module Assert =
+
     open Fable.Core.Testing
 
     let AreEqual(actual, expected, msg) = 
@@ -223,7 +239,9 @@ module Test =
 module Expect =
 
     let inline equal (actual: 'a) (expected: 'a) msg : unit =
-        if actual = expected then
+        let actual' = !! actual
+        let expected' = !! expected
+        if actual' = expected' then
             Assert.AreEqual(actual, expected, msg)
         else
             let errorMsg =
@@ -531,25 +549,28 @@ module Pyxpecto =
             sb.AppendLine() |> ignore
             let msg = sb.AppendLine(sep).AppendLine(innerMsgString).AppendLine(sep).ToString()
             printfn "%s" msg
-            match runner.ErrorTests.Value, runner.FailedTests.Value with
-            | errors,_ when errors > 0 ->
-                Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> printfn "%A"
-                return 2
-            | _,failed when failed > 0 ->
-                Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> printfn "%A"
-                return 1
-            | _ ->
-                printfn $"{BColors.OKGREEN}Success!{BColors.ENDC}"
-                return 0
+            // This might not be necessary if the exitcode issue with python is fixed
+            let raiseInJs =
+                #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+                failwith
+                #else
+                fun _ -> ()
+                #endif
+            let exitCode : int = 
+                match runner.ErrorTests.Value, runner.FailedTests.Value with
+                | errors,_ when errors > 0 ->
+                    Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> printfn "%A"
+                    raiseInJs "ExitCode: 2"
+                    2
+                | _,failed when failed > 0 ->
+                    Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> printfn "%A"
+                    raiseInJs "ExitCode: 1"
+                    1
+                | _ ->
+                    printfn $"{BColors.OKGREEN}Success!{BColors.ENDC}"
+                    0
+            return exitCode
         }
-
-    // This is possibly the most magic
-    #if !FABLE_COMPILER_JAVASCRIPT && !FABLE_COMPILER_TYPESCRIPT
-    let (!!) (any: 'a) = any
-    #endif
-    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
-    open Fable.Core.JsInterop
-    #endif
 
     let rec runTests (test: TestCase) = 
         let r = runViaPy test |> start

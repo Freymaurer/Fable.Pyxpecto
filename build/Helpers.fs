@@ -90,7 +90,17 @@ let python =
         match ProcessUtils.tryFindFileOnPath "python" with
         | Some path -> path
         | None ->
-            "py was not found in path. Please install it and make sure it's available from your path."
+            "python was not found in path. Please install it and make sure it's available from your path."
+            |> failwith
+
+    createProcess path
+
+let node =
+    let path =
+        match ProcessUtils.tryFindFileOnPath "node" with
+        | Some path -> path
+        | None ->
+            "node was not found in path. Please install it and make sure it's available from your path."
             |> failwith
 
     createProcess path
