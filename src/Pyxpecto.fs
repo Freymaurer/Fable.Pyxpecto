@@ -4,6 +4,20 @@ open System
 open Fable.Core.Testing
 open Fable.Core
 
+[<AttachMembers>]
+type Stopwatch() =
+    member val StartTime: DateTime option = None with get, set
+    member val StopTime: DateTime option = None with get, set
+    member this.Start() = this.StartTime <- Some DateTime.Now
+    member this.Stop() = 
+        match this.StartTime with
+        | Some _ -> this.StopTime <- Some DateTime.Now
+        | None -> failwith "Error. Unable to call `Stop` before `Start`."
+    member this.Elapsed : TimeSpan = 
+        match this.StartTime, this.StopTime with
+        | Some start, Some stop -> stop - start
+        | _, _ -> failwith "Error. Unable to call `Elapsed` without calling `Start` and `Stop` before."
+
 type FocusState =
     | Normal
     | Pending
@@ -350,10 +364,11 @@ module Pyxpecto =
         member this.SumTests
             with get() = this.SuccessfulTests + this.FailedTests + this.ErrorTests
 
-        member private this.printSuccessMsg (name: string) = 
+        member private this.printSuccessMsg (name: string) (runtime: TimeSpan option) = 
             let focused = if this.HasFocused then "💎 | " else ""
             this.SuccessfulTests <- this.SuccessfulTests + 1
-            printfn $"{focused}✔️ {name}" 
+            let timespan = if runtime.IsSome then $" ({runtime.Value.ToString()})" else ""
+            printfn $"{focused}✔️ {name}{timespan}" 
         member private this.printErrorMsg (name: string) (msg: string) (isTrueError: bool)= 
             this.ErrorMessages.Add(name, msg)
             let focused = if this.HasFocused then "💎 | " else ""
@@ -370,7 +385,7 @@ module Pyxpecto =
         member this.RunSyncTest(name: string, body: unit -> unit) = 
             try 
                 body()
-                this.printSuccessMsg name
+                this.printSuccessMsg name None
             with
                 | :? AssertException as exn ->
                     this.printErrorMsg name exn.Message false
@@ -378,10 +393,13 @@ module Pyxpecto =
                     this.printErrorMsg name e.Message true
                     
         member this.RunAsyncTest(name, body: Async<unit>) =
+            let stopwatch = new Stopwatch()
+            stopwatch.Start()
             try
                 async {
                     do! body
-                    this.printSuccessMsg name
+                    stopwatch.Stop()
+                    this.printSuccessMsg name (Some stopwatch.Elapsed)
                 }
                 |> Async.RunSynchronously
             with

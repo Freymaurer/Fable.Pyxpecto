@@ -7,7 +7,7 @@ let project = "Fable.Pyxpecto"
 let testProjects = 
     [
         // add relative paths (from project root) to your testprojects here
-        "tests"
+        "tests/Mocha.Tests"
     ]
 
 let solutionFile  = $"{project}.sln"
