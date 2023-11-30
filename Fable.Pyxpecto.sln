@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F6DC93A8
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Mocha.Tests", "tests\Mocha.Tests\Mocha.Tests.fsproj", "{0C60BD36-F361-4C85-B86B-1BA1A7B05388}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Multitarget.Tests", "tests\Multitarget.Tests\Multitarget.Tests.fsproj", "{510A5C24-3ACE-4D69-8FE2-1F089E0D238B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,12 +40,17 @@ Global
 		{0C60BD36-F361-4C85-B86B-1BA1A7B05388}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C60BD36-F361-4C85-B86B-1BA1A7B05388}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C60BD36-F361-4C85-B86B-1BA1A7B05388}.Release|Any CPU.Build.0 = Release|Any CPU
+		{510A5C24-3ACE-4D69-8FE2-1F089E0D238B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{510A5C24-3ACE-4D69-8FE2-1F089E0D238B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{510A5C24-3ACE-4D69-8FE2-1F089E0D238B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{510A5C24-3ACE-4D69-8FE2-1F089E0D238B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0C60BD36-F361-4C85-B86B-1BA1A7B05388} = {F6DC93A8-274F-4BC7-8CBD-BEFAE46C9941}
+		{510A5C24-3ACE-4D69-8FE2-1F089E0D238B} = {F6DC93A8-274F-4BC7-8CBD-BEFAE46C9941}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8760AA51-9BCC-433F-A279-C4273FC26858}

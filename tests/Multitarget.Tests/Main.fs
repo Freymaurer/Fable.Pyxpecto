@@ -1,14 +1,6 @@
 ﻿module Fable.Pyxpecto.Tests
 
-#if FABLE_COMPILER_PYTHON
 open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
-#endif
-#if !FABLE_COMPILER
-open Expecto
-#endif
 
 let tests_sequential = testSequenced <| testList "Sequential" [
     let mutable TESTMUTABLE = 0
@@ -47,7 +39,6 @@ let tests_sequential = testSequenced <| testList "Sequential" [
         do! Async.Sleep 1000
         Expect.isTrue true "this should work"
     }
-
 ]
 
 let tests_basic = testList "Basic" [
@@ -70,7 +61,7 @@ let tests_basic = testList "Basic" [
             Expect.isOk actual "Should fail"
             Expect.equal true false "Should not be tested"
         let catch (exn: System.Exception) =
-            Expect.equal exn.Message "Should fail. Expected Ok, was Error(\"fails\")." "Error messages should be the same"
+            Expect.equal exn.Message "Should fail. Expected Ok, was Error('fails')." "Error messages should be the same"
         Expect.throwsC case catch
 
     testCase "isEmpty works correctly" <| fun _ ->
@@ -364,14 +355,15 @@ let all =
         //failedTestCases
     ]
 
+// This is possibly the most magic used to make this work. 
+// Js and ts cannot use `Async.RunSynchronously`, instead they use `Async.StartAsPromise`.
+// Here we need the transpiler not to worry about the output type.
+#if !FABLE_COMPILER_JAVASCRIPT && !FABLE_COMPILER_TYPESCRIPT
+let (!!) (any: 'a) = any
+#endif
+#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+open Fable.Core.JsInterop
+#endif
+
 [<EntryPoint>]
-let main argv =
-    #if FABLE_COMPILER_PYTHON
-    Pyxpecto.runTests all
-    #endif
-    #if FABLE_COMPILER_JAVASCRIPT
-    Mocha.runTests all
-    #endif
-    #if !FABLE_COMPILER
-    Tests.runTestsWithCLIArgs [] [||] all
-    #endif
+let main argv = !!Pyxpecto.runTests all

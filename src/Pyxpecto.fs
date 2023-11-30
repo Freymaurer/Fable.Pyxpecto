@@ -1,35 +1,81 @@
 ﻿namespace Fable.Pyxpecto
 
 open System
-open Fable.Core.Testing
 open Fable.Core
 
-[<AttachMembers>]
-type Stopwatch() =
-    member val StartTime: DateTime option = None with get, set
-    member val StopTime: DateTime option = None with get, set
-    member this.Start() = this.StartTime <- Some DateTime.Now
-    member this.Stop() = 
-        match this.StartTime with
-        | Some _ -> this.StopTime <- Some DateTime.Now
-        | None -> failwith "Error. Unable to call `Stop` before `Start`."
-    member this.Elapsed : TimeSpan = 
-        match this.StartTime, this.StopTime with
-        | Some start, Some stop -> stop - start
-        | _, _ -> failwith "Error. Unable to call `Elapsed` without calling `Start` and `Stop` before."
+module Assert =
+    open Fable.Core.Testing
 
-type FocusState =
-    | Normal
-    | Pending
-    | Focused
+    let AreEqual(actual, expected, msg) = 
+        #if FABLE_COMPILER
+        Assert.AreEqual(actual, expected, msg)
+        #else
+        actual = expected |> ignore
+        #endif
 
-type TestCase =
-    | SyncTest of string * (unit -> unit) * FocusState
-    | AsyncTest of string * Async<unit> * FocusState
-    | TestList of string * TestCase list
-    | TestListSequential of string * TestCase list
+    let NotEqual(actual, expected, msg) = 
+        #if FABLE_COMPILER
+        Assert.NotEqual(actual, expected, msg)
+        #else
+        actual <> expected |> ignore
+        #endif
+ 
+open Assert
 
-type AssertException(msg) = inherit Exception(msg) 
+module Model =
+
+    [<AttachMembers>]
+    type Stopwatch() =
+        member val StartTime: DateTime option = None with get, set
+        member val StopTime: DateTime option = None with get, set
+        member this.Start() = this.StartTime <- Some DateTime.Now
+        member this.Stop() = 
+            match this.StartTime with
+            | Some _ -> this.StopTime <- Some DateTime.Now
+            | None -> failwith "Error. Unable to call `Stop` before `Start`."
+        member this.Elapsed : TimeSpan = 
+            match this.StartTime, this.StopTime with
+            | Some start, Some stop -> stop - start
+            | _, _ -> failwith "Error. Unable to call `Elapsed` without calling `Start` and `Stop` before."
+
+    type FocusState =
+        | Normal
+        | Pending
+        | Focused
+
+    type TestCase =
+        | SyncTest of string * (unit -> unit) * FocusState
+        | AsyncTest of string * Async<unit> * FocusState
+        | TestList of string * TestCase list
+        | TestListSequential of string * TestCase list
+
+    type AssertException(msg) = inherit Exception(msg) 
+
+    type TestCode =
+    | Sync of stest: (unit -> unit)
+    | Async of atest: Async<unit>
+
+    type SequenceMethod =
+    | Sequential
+    | Parallel
+
+    [<AttachMembers>]
+    type FlatTest = 
+        {
+          name          : string list
+          test          : TestCode
+          focusState    : FocusState
+          sequenced     : SequenceMethod
+        } 
+        static member create(name, test, focusState, sequenceMethod) = {
+            name = name
+            test = test
+            focusState = focusState
+            sequenced = sequenceMethod
+        }
+        member this.fullname = String.concat(" - ") this.name
+
+open Model
 
 type Accuracy = { absolute: float; relative: float }
 
@@ -42,26 +88,64 @@ module Accuracy =
     let high = {absolute=1e-10; relative=1e-7}
     let veryHigh = {absolute=1e-12; relative=1e-9}
 
+module CommandLineArguments =
+
+    #if FABLE_COMPILER_PYTHON
+    module Python =
+
+        open Fable.Core.PyInterop
+
+        [<ImportAll("sys")>]
+        let sys : obj = nativeOnly
+
+        let getArgs() : string [] = 
+            !!sys?argv
+    #endif
+
+    #if (FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT)
+    module NodeJs =
+        [<Emit("process.argv")>]
+        let getArgs() : string [] = nativeOnly
+    #endif
+
+    #if !FABLE_COMPILER
+    module NET =
+        let getArgs() : string [] = Environment.GetCommandLineArgs()
+    #endif
+
+    let getArguments() : string [] =
+        let args =
+            #if FABLE_COMPILER_PYTHON
+            Python.getArgs()
+            #endif
+            #if (FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT)
+            NodeJs.getArgs()
+            #endif
+            #if !FABLE_COMPILER
+            NET.getArgs();
+            #endif
+        args
+
 module BColors =
     open Fable.Core
 
-    [<Emit("'\\033[96m'")>]
-    let OKCYAN : string = ""
+    [<Emit("'\x1b[36m'")>]
+    let OKCYAN : string = "\x1b[36m"
 
-    [<Emit("'\\033[92m'")>]
-    let OKGREEN : string = ""
+    [<Emit("'\x1b[32m'")>]
+    let OKGREEN : string = "\x1b[32m"
 
-    [<Emit("'\\033[36m'")>]
-    let INFOBLUE : string = ""
+    [<Emit("'\x1b[94m'")>]
+    let INFOBLUE : string = "\x1b[94m"
 
-    [<Emit("'\\033[91m'")>]
-    let FAIL : string = ""
+    [<Emit("'\x1b[31m'")>]
+    let FAIL : string = "\x1b[31m"
 
-    [<Emit("'\\033[93m'")>]
-    let WARNING : string = ""
+    [<Emit("'\x1b[33m'")>]
+    let WARNING : string = "\x1b[33m"
 
-    [<Emit("'\\033[0m'")>]
-    let ENDC : string = ""
+    [<Emit("'\x1b[0m'")>]
+    let ENDC : string = "\x1b[0m"
 
 module Helper =
     let expectError (str:string) = AssertException str |> raise 
@@ -80,7 +164,7 @@ module Test =
     let testSequenced test =
         match test with
         | SyncTest(name, test, state) -> TestListSequential(name, [ SyncTest(name, test, state) ])
-        | AsyncTest(name, test, state) ->  TestListSequential(name, [ AsyncTest(name, test, state) ])
+        | AsyncTest(name, test, state) -> TestListSequential(name, [ AsyncTest(name, test, state) ])
         | TestList(name, tests) -> TestListSequential(name, tests)
         | TestListSequential(name, tests) -> TestListSequential(name, tests)
 
@@ -176,14 +260,14 @@ module Expect =
     let isOk x message =
         match x with
         | Ok _ -> passWithMsg message
-        | Error x' -> expectError(sprintf "%s. Expected Ok, was Error(\"%A\")." message x')
+        | Error x' -> expectError(sprintf "%s. Expected Ok, was Error('%s')." message (string x'))
     /// Expects the value to be a Result.Ok value and returns it or fails the test
     let wantOk x message =
         match x with
         | Ok x' ->
             passWithMsg message
             x'
-        | Error x' -> expectError(sprintf "%s. Expected Ok, was Error(\"%A\")." message x')
+        | Error x' -> expectError(sprintf "%s. Expected Ok, was Error('%A')." message x')
     let stringContains (subject: string) (substring: string) message =
         if not (subject.Contains(substring))
         then expectError(sprintf "%s. Expected subject string '%s' to contain substring '%s'." message subject substring)
@@ -287,186 +371,218 @@ module Expect =
         if actual<expected then floatClose accuracy actual expected message
 
 module Pyxpecto =
-    let rec isFocused (test: TestCase ) =
-        match test with
-        | SyncTest(_,_,Focused) -> true
-        | AsyncTest(_,_,Focused) -> true
-        | TestList(_,tests) -> List.exists isFocused tests
-        | TestListSequential(_, tests) -> List.exists isFocused tests
-        | _ -> false
 
-    let private flattenTests lastName testCase =
-        let appendNames (lastName: string) (newName: string) = if String.IsNullOrWhiteSpace lastName then newName else sprintf "%s - %s" lastName newName
-        let rec loop lastName testCase = 
-            match testCase with
-            | SyncTest(name, test, state) ->
-                let modifiedName = appendNames lastName name
-                [ SyncTest(modifiedName, test, state) ]
-
-            | AsyncTest(name, test, state) ->
-                let modifiedName = appendNames lastName name
-                [ AsyncTest(modifiedName, test, state) ]
-
-            | TestList (name, tests) ->
-                [ for test in tests do 
-                    let modifiedName = appendNames lastName name
-                    yield! loop modifiedName test ]
-
-            | TestListSequential (name, tests) ->
-                [ for test in tests do 
-                    let modifiedName = appendNames lastName name
-                    yield! loop modifiedName test ]
-        loop lastName testCase
-
-    let checkFocused (test: TestCase) = 
-        let mutable hasFocused: bool = false
-        let rec loop = function
-            | AsyncTest (_, _, Focused) | SyncTest(_, _, Focused) ->
-                hasFocused <- true
-
-            | AsyncTest(_,_,_) | SyncTest(_,_,_) -> ()
-
-            | TestListSequential (_,tests) | TestList (_,tests) ->
-                for test in tests do loop test 
-        loop test
-        hasFocused
-
-    module PyBindings =
-        #if !FABLE_COMPILER_PYTHON
-        open Fable.Core.JsInterop
-        #else
-        open Fable.Core.PyInterop
-        #endif
-
-        [<ImportAll("sys")>]
-        let sys : obj = nativeOnly
-
-        let cmd_args : string [] = sys?argv
+    /// Flattens a tree of tests
+    let flattenTests test =
+        let rec loop parentName testList sequenced test =
+            match test with
+            | TestCase.SyncTest (name, test, state) ->
+                FlatTest.create(
+                    parentName@[name],
+                    TestCode.Sync test,
+                    state,
+                    sequenced
+                ) :: testList
+            | TestCase.AsyncTest (name, test, state) ->
+                FlatTest.create(
+                    parentName@[name],
+                    TestCode.Async test,
+                    state,
+                    sequenced
+                ) :: testList
+            | TestList (name, tests) -> 
+                let names = parentName @ [name]
+                tests |> List.collect (loop names testList sequenced) 
+            | TestListSequential (name, tests) -> 
+                let names = parentName @ [name]
+                tests |> List.collect (loop names testList SequenceMethod.Sequential) 
+        loop [] [] SequenceMethod.Parallel test
 
     [<AttachMembersAttribute>]
     type CustomTestRunner(test:TestCase) =
 
-        let hasFocused = checkFocused test
+        let flatTests = flattenTests test
+        let hasFocused = flatTests |> List.exists (fun ft -> ft.focusState = FocusState.Focused)
+        let args = CommandLineArguments.getArguments()
+        let testPrint = printfn "%A" args
+        ///// If the flag '--fail-on-focused-tests' is given to py command AND focused tests exist it will fail.
+        //let verifyFocusedAllowed =
+        //    let args = PyBindings.cmd_args
+        //    let failOnFocusedTestsArg = @"--fail-on-focused-tests" 
+        //    if Array.contains failOnFocusedTestsArg args && hasFocused then failwith $"{BColors.FAIL}Cannot run focused tests with '{failOnFocusedTestsArg}' commandline arg.{BColors.ENDC}"
 
-        /// If the flag '--fail-on-focused-tests' is given to py command AND focused tests exist it will fail.
-        let verifyFocusedAllowed =
-            let args = PyBindings.cmd_args
-            let failOnFocusedTestsArg = @"--fail-on-focused-tests" 
-            if Array.contains failOnFocusedTestsArg args && hasFocused then failwith $"{BColors.FAIL}Cannot run focused tests with '{failOnFocusedTestsArg}' commandline arg.{BColors.ENDC}"
-
-        member val SuccessfulTests = 0 with get, set
-        member val FailedTests = 0 with get, set
-        member val IgnoredTests = 0 with get, set
-        member val ErrorTests = 0 with get, set
+        member val SuccessfulTests = ref 0 with get, set
+        member val FailedTests = ref 0 with get, set
+        member val IgnoredTests = ref 0 with get, set
+        member val ErrorTests = ref 0 with get, set
         member val HasFocused = hasFocused with get
         member val ErrorMessages = ResizeArray() with get, set
+        member val FlatTests = flatTests with get
 
         member this.SumTests
-            with get() = this.SuccessfulTests + this.FailedTests + this.ErrorTests
+            with get() = this.SuccessfulTests.Value + this.FailedTests.Value + this.ErrorTests.Value
 
         member private this.printSuccessMsg (name: string) (runtime: TimeSpan option) = 
             let focused = if this.HasFocused then "💎 | " else ""
-            this.SuccessfulTests <- this.SuccessfulTests + 1
+            this.SuccessfulTests.Value <- this.SuccessfulTests.Value + 1
             let timespan = if runtime.IsSome then $" ({runtime.Value.ToString()})" else ""
             printfn $"{focused}✔️ {name}{timespan}" 
+
         member private this.printErrorMsg (name: string) (msg: string) (isTrueError: bool)= 
             this.ErrorMessages.Add(name, msg)
             let focused = if this.HasFocused then "💎 | " else ""
             let errorAgainstFailHandling = 
                 if isTrueError then 
-                    this.ErrorTests <- this.ErrorTests + 1
+                    this.ErrorTests.Value <- this.ErrorTests.Value + 1
                     "❌" 
                 else 
-                    this.FailedTests <- this.FailedTests + 1
+                    this.FailedTests.Value <- this.FailedTests.Value + 1
                     "🚫"
             printfn $"{focused}{errorAgainstFailHandling} {name}\n\b{msg}" 
+
         member private this.printSkipPendingMsg (name: string) = printfn "🚧 skipping '%s' ... pending" name
 
-        member this.RunSyncTest(name: string, body: unit -> unit) = 
-            try 
-                body()
-                this.printSuccessMsg name None
-            with
-                | :? AssertException as exn ->
-                    this.printErrorMsg name exn.Message false
-                | e ->
-                    this.printErrorMsg name e.Message true
-                    
-        member this.RunAsyncTest(name, body: Async<unit>) =
-            let stopwatch = new Stopwatch()
-            stopwatch.Start()
-            try
-                async {
-                    do! body
-                    stopwatch.Stop()
-                    this.printSuccessMsg name (Some stopwatch.Elapsed)
-                }
-                |> Async.RunSynchronously
-            with
-                | :? AssertException as exn ->
-                    this.printErrorMsg name exn.Message false
-                | e ->
-                    this.printErrorMsg name e.Message true
+        member this.RunTest(test : FlatTest) =
+            let name = test.fullname
+            async {
+                match test.test with
+                | Sync body ->
+                    try 
+                        body()
+                        this.printSuccessMsg name None
+                    with
+                        | :? AssertException as exn ->
+                            this.printErrorMsg name exn.Message false
+                        | e ->
+                            this.printErrorMsg name e.Message true
+                | Async body ->
+                    try 
+                        let stopwatch = new Stopwatch()
+                        stopwatch.Start()
+                        do! body
+                        stopwatch.Stop()
+                        this.printSuccessMsg name (Some stopwatch.Elapsed)
+                    with
+                        | :? AssertException as exn ->
+                            this.printErrorMsg name exn.Message false
+                        | e ->
+                            this.printErrorMsg name e.Message true
+            }
 
         member this.SkipPendingTest(name) =
-            this.IgnoredTests <- this.IgnoredTests + 1
+            this.IgnoredTests.Value <- this.IgnoredTests.Value + 1
             this.printSkipPendingMsg name
 
         member this.SkipUnfocusedTest() =
-            this.IgnoredTests <- this.IgnoredTests + 1
+            this.IgnoredTests.Value <- this.IgnoredTests.Value + 1
 
-    let rec private runViaPy (test: TestCase) =
-        let runner = CustomTestRunner(test)
-        let rec run (runner: CustomTestRunner) (test: TestCase) =
-            match test with
-                | SyncTest (name: string, test, focus) ->
-                    match runner.HasFocused, focus with
-                    | false, Normal -> runner.RunSyncTest(name,test) 
-                    | false, Pending -> runner.SkipPendingTest name
-                    | true, Focused -> runner.RunSyncTest(name,test) 
-                    | _,_ -> runner.SkipUnfocusedTest()
+    let private start (asyncobj: Async<'a>) =
 
-                | AsyncTest (name, test, focus) ->
-                    match runner.HasFocused, focus with
-                    | false, Normal -> runner.RunAsyncTest(name, test)
-                    | false, Pending -> runner.SkipPendingTest name
-                    | true, Focused -> runner.RunAsyncTest(name, test)
-                    | _,_ -> runner.SkipUnfocusedTest()
-
-                | TestListSequential (name, testCases) | TestList (name, testCases) ->
-                    testCases
-                    |> List.collect (fun t -> flattenTests name t)
-                    |> List.iter (run runner)
-        printfn "🚀 start running tests ..."
-        run runner test
-        let innerMsgString = $"""{BColors.INFOBLUE}{runner.SumTests}{BColors.ENDC} tests run - {BColors.INFOBLUE}{runner.SuccessfulTests}{BColors.ENDC} passed, {BColors.INFOBLUE}{runner.IgnoredTests}{BColors.ENDC} ignored, {BColors.INFOBLUE}{runner.FailedTests}{BColors.ENDC} failed, {BColors.INFOBLUE}{runner.ErrorTests}{BColors.ENDC} errored"""
-        let sep = "-------------------------------------------------------------------------------"
-        let sb = System.Text.StringBuilder()
-        sb.AppendLine() |> ignore
-        for i in 1 .. runner.ErrorMessages.Count do
-            let name, msg = runner.ErrorMessages.[i-1]
-            sb.AppendLine $"{BColors.FAIL}{i}) {name}{BColors.ENDC}\n\b{msg}" |> ignore
-        sb.AppendLine() |> ignore
-        let msg = sb.AppendLine(sep).AppendLine(innerMsgString).AppendLine(sep).ToString()
-        printfn "%s" msg
-        match runner.ErrorTests, runner.FailedTests with
-        | errors,_ when errors > 0 ->
-            Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> printfn "%A"
-            2
-        | _,failed when failed > 0 ->
-            Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> printfn "%A"
-            1
-        | _ ->
-            printfn $"{BColors.OKGREEN}Success!{BColors.ENDC}"
-            0
-
-    let private runViaDotnet (test: TestCase) =
-        raise (NotImplementedException("Currently not implemented, use Expecto for now."))
-        1
-
-    let rec runTests (test: TestCase) : int=
-        #if FABLE_COMPILER
-        runViaPy test
-        #else
-        runViaDotnet test
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+        asyncobj |> Async.StartAsPromise
         #endif
+        #if !FABLE_COMPILER_JAVASCRIPT && !FABLE_COMPILER_TYPESCRIPT
+        asyncobj |> Async.RunSynchronously
+        #endif
+
+    let private sortTests (runner: CustomTestRunner) = 
+        runner.FlatTests
+        |> List.fold(fun (parallelTests, sequentialTests, pendingTests, unfocusedTests) (ft: FlatTest) ->
+            match ft with
+            | { focusState = focus; sequenced = sequencedMethod } ->
+                match runner.HasFocused, focus with
+                | false, Normal -> 
+                    match sequencedMethod with
+                    | Parallel ->
+                        ft::parallelTests, sequentialTests, pendingTests, unfocusedTests
+                    | Sequential ->
+                        parallelTests, ft::sequentialTests, pendingTests, unfocusedTests
+                | false, Pending -> 
+                    parallelTests, sequentialTests, ft::pendingTests, unfocusedTests
+                | true, Focused -> 
+                    match sequencedMethod with
+                    | Parallel ->
+                        ft::parallelTests, sequentialTests, pendingTests, unfocusedTests
+                    | Sequential ->
+                        parallelTests, ft::sequentialTests, pendingTests, unfocusedTests
+                | _,_ -> 
+                    parallelTests, sequentialTests, pendingTests, ft::unfocusedTests
+        ) ([],[],[],[])
+        |> fun (a,b,c,d) -> List.rev a, List.rev b, List.rev c, List.rev d
+
+    let private runParallel (runner: CustomTestRunner) (flatTests: FlatTest list) =
+        async {
+            let! all =
+                flatTests 
+                |> List.map (fun ft ->
+                    runner.RunTest(ft)
+                )
+                |> Async.Parallel
+            return ()
+        }
+
+    let private runSequential (runner: CustomTestRunner) (flatTests: FlatTest list) =
+        async {
+            for ft in flatTests do
+                do! runner.RunTest(ft)
+        }
+
+    let rec private runViaPy (tests: TestCase) =
+        let runner = CustomTestRunner(tests)
+        let run (runner: CustomTestRunner) =
+            let parallelTests, sequentialTests, pendingTests, unfocusedTests = sortTests runner
+            async {
+                for ft in pendingTests do
+                    runner.SkipPendingTest ft.fullname
+                for _ in unfocusedTests do
+                    runner.SkipUnfocusedTest()
+                do! async {
+                    let combined = [
+                        runParallel runner parallelTests
+                        runSequential runner sequentialTests
+                    ]
+                    if combined.Length > 0 then
+                        let! _ = Async.Parallel combined
+                        ()
+                }
+            }
+        // enable emoji support for .NET
+        #if !FABLE_COMPILER
+        System.Console.OutputEncoding <- System.Text.Encoding.UTF8
+        #endif
+        printfn "🚀 start running tests ..."
+        async {
+            do! run runner
+            let innerMsgString = $"""{BColors.INFOBLUE}{runner.SumTests}{BColors.ENDC} tests run - {BColors.INFOBLUE}{runner.SuccessfulTests.Value}{BColors.ENDC} passed, {BColors.INFOBLUE}{runner.IgnoredTests.Value}{BColors.ENDC} ignored, {BColors.INFOBLUE}{runner.FailedTests.Value}{BColors.ENDC} failed, {BColors.INFOBLUE}{runner.ErrorTests.Value}{BColors.ENDC} errored"""
+            let sep = "-------------------------------------------------------------------------------"
+            let sb = System.Text.StringBuilder()
+            sb.AppendLine() |> ignore
+            for i in 1 .. runner.ErrorMessages.Count do
+                let name, msg = runner.ErrorMessages.[i-1]
+                sb.AppendLine $"{BColors.FAIL}{i}) {name}{BColors.ENDC}\n\b{msg}" |> ignore
+            sb.AppendLine() |> ignore
+            let msg = sb.AppendLine(sep).AppendLine(innerMsgString).AppendLine(sep).ToString()
+            printfn "%s" msg
+            match runner.ErrorTests.Value, runner.FailedTests.Value with
+            | errors,_ when errors > 0 ->
+                Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> printfn "%A"
+                return 2
+            | _,failed when failed > 0 ->
+                Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> printfn "%A"
+                return 1
+            | _ ->
+                printfn $"{BColors.OKGREEN}Success!{BColors.ENDC}"
+                return 0
+        }
+
+    // This is possibly the most magic
+    #if !FABLE_COMPILER_JAVASCRIPT && !FABLE_COMPILER_TYPESCRIPT
+    let (!!) (any: 'a) = any
+    #endif
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+    open Fable.Core.JsInterop
+    #endif
+
+    let rec runTests (test: TestCase) = 
+        let r = runViaPy test |> start
+        !!r
