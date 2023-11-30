@@ -487,64 +487,32 @@ module Pyxpecto =
 
     let private sortTests (runner: CustomTestRunner) = 
         runner.FlatTests
-        |> List.fold(fun (parallelTests, sequentialTests, pendingTests, unfocusedTests) (ft: FlatTest) ->
+        |> List.fold(fun (runTests, pendingTests, unfocusedTests) (ft: FlatTest) ->
             match ft with
             | { focusState = focus; sequenced = sequencedMethod } ->
                 match runner.HasFocused, focus with
                 | false, Normal -> 
-                    match sequencedMethod with
-                    | Parallel ->
-                        ft::parallelTests, sequentialTests, pendingTests, unfocusedTests
-                    | Sequential ->
-                        parallelTests, ft::sequentialTests, pendingTests, unfocusedTests
+                    ft::runTests,  pendingTests, unfocusedTests
                 | false, Pending -> 
-                    parallelTests, sequentialTests, ft::pendingTests, unfocusedTests
+                    runTests, ft::pendingTests, unfocusedTests
                 | true, Focused -> 
-                    match sequencedMethod with
-                    | Parallel ->
-                        ft::parallelTests, sequentialTests, pendingTests, unfocusedTests
-                    | Sequential ->
-                        parallelTests, ft::sequentialTests, pendingTests, unfocusedTests
+                    ft::runTests,  pendingTests, unfocusedTests
                 | _,_ -> 
-                    parallelTests, sequentialTests, pendingTests, ft::unfocusedTests
-        ) ([],[],[],[])
-        |> fun (a,b,c,d) -> List.rev a, List.rev b, List.rev c, List.rev d
-
-    let private runParallel (runner: CustomTestRunner) (flatTests: FlatTest list) =
-        async {
-            let! all =
-                flatTests 
-                |> List.map (fun ft ->
-                    runner.RunTest(ft)
-                )
-                |> Async.Parallel
-            return ()
-        }
-
-    let private runSequential (runner: CustomTestRunner) (flatTests: FlatTest list) =
-        async {
-            for ft in flatTests do
-                do! runner.RunTest(ft)
-        }
+                    runTests, pendingTests, ft::unfocusedTests
+        ) ([],[],[])
+        |> fun (b,c,d) -> List.rev b, List.rev c, List.rev d
 
     let rec private runViaPy (tests: TestCase) =
         let runner = CustomTestRunner(tests)
         let run (runner: CustomTestRunner) =
-            let parallelTests, sequentialTests, pendingTests, unfocusedTests = sortTests runner
+            let runTests, pendingTests, unfocusedTests = sortTests runner
             async {
                 for ft in pendingTests do
                     runner.SkipPendingTest ft.fullname
                 for _ in unfocusedTests do
                     runner.SkipUnfocusedTest()
-                do! async {
-                    let combined = [
-                        runParallel runner parallelTests
-                        runSequential runner sequentialTests
-                    ]
-                    if combined.Length > 0 then
-                        let! _ = Async.Parallel combined
-                        ()
-                }
+                for ft in runTests do
+                    do! runner.RunTest(ft)
             }
         // enable emoji support for .NET
         #if !FABLE_COMPILER
