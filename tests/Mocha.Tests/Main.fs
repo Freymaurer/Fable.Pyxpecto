@@ -370,7 +370,7 @@ let all =
 [<EntryPoint>]
 let main argv =
     #if FABLE_COMPILER_PYTHON
-    Pyxpecto.runTests all
+    Pyxpecto.runTests (ConfigArg.fromStrings argv) all
     #endif
     #if FABLE_COMPILER_JAVASCRIPT
     Mocha.runTests all

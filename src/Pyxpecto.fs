@@ -407,6 +407,52 @@ module Expect =
     let floatGreaterThanOrClose accuracy actual expected message =
         if actual<expected then floatClose accuracy actual expected message
 
+type Language =
+| TypeScript
+| Python
+| NET
+| JavaScript
+    static member get() =
+        #if FABLE_COMPILER_JAVASCRIPT
+        Language.JavaScript
+        #endif
+        #if FABLE_COMPILER_PYTHON
+        Language.Python
+        #endif
+        #if FABLE_COMPILER_TYPESCRIPT
+        Language.TypeScript
+        #endif
+        #if !FABLE_COMPILER
+        Language.NET
+        #endif
+    member this.AsLowerCaseString = (string this).ToLower()
+
+[<RequireQualifiedAccess>]
+module ConfigArgLiterals =
+
+    let [<Literal>] FailOnFocused = @"--fail-on-focused-tests"
+    let [<Literal>] Silent = @"--silent"
+    
+type ConfigArg =
+| FailOnFocused
+| Silent
+with 
+    static member fromString (s: string) =
+        match s with
+        | ConfigArgLiterals.FailOnFocused -> Some FailOnFocused
+        | ConfigArgLiterals.Silent -> Some Silent
+        | _ -> None
+
+    static member fromStrings (arr: string []) : ConfigArg [] =
+        arr |> Array.choose ConfigArg.fromString
+
+    static member defaultConfigs : ConfigArg [] = [||]
+
+type Config(args: ConfigArg []) = 
+    let argExists(arg: ConfigArg) = Array.contains arg args
+    member val FailOnFocused: bool = argExists ConfigArg.FailOnFocused with get, set
+    member val Silent: bool = argExists ConfigArg.Silent with get, set
+
 module Pyxpecto =
 
     /// Flattens a tree of tests
@@ -436,18 +482,19 @@ module Pyxpecto =
         loop [] [] SequenceMethod.Parallel test
 
     [<AttachMembersAttribute>]
-    type CustomTestRunner(test:TestCase) =
+    type CustomTestRunner(test:TestCase, ?configArgs: ConfigArg []) =
 
         let flatTests = flattenTests test
         let hasFocused = flatTests |> List.exists (fun ft -> ft.focusState = FocusState.Focused)
         let args = CommandLine.getArguments()
-        let testPrint = printfn "%A" args
-        ///// If the flag '--fail-on-focused-tests' is given to py command AND focused tests exist it will fail.
-        //let verifyFocusedAllowed =
-        //    let args = PyBindings.cmd_args
-        //    let failOnFocusedTestsArg = @"--fail-on-focused-tests" 
-        //    if Array.contains failOnFocusedTestsArg args && hasFocused then failwith $"{BColors.FAIL}Cannot run focused tests with '{failOnFocusedTestsArg}' commandline arg.{BColors.ENDC}"
+        let codeArgs = defaultArg configArgs [||]
+        let _config = Array.append codeArgs (ConfigArg.fromStrings args) |> Config
+        /// If the flag '--fail-on-focused-tests' is given to py command AND focused tests exist it will fail.
+        let verifyFocusedAllowed =
+            if _config.FailOnFocused && hasFocused then failwith $"{BColors.FAIL}Cannot run focused tests with '{ConfigArgLiterals.FailOnFocused}' commandline arg.{BColors.ENDC}"
 
+        member val Language = Language.get() with get
+        member val Config = _config with get
         member val SuccessfulTests = ref 0 with get, set
         member val FailedTests = ref 0 with get, set
         member val IgnoredTests = ref 0 with get, set
@@ -460,14 +507,14 @@ module Pyxpecto =
             with get() = this.SuccessfulTests.Value + this.FailedTests.Value + this.ErrorTests.Value
 
         member private this.printSuccessMsg (name: string) (runtime: TimeSpan option) = 
-            let focused = if this.HasFocused then "💎 | " else ""
             this.SuccessfulTests.Value <- this.SuccessfulTests.Value + 1
-            let timespan = if runtime.IsSome then $" ({runtime.Value.ToString()})" else ""
-            printfn $"{focused}✔️ {name}{timespan}" 
+            if not this.Config.Silent then
+                let focused = if this.HasFocused then "💎 | " else ""
+                let timespan = if runtime.IsSome then $" ({runtime.Value.ToString()})" else ""
+                System.Console.WriteLine $"{focused}✔️ {name}{timespan}" 
 
         member private this.printErrorMsg (name: string) (msg: string) (isTrueError: bool)= 
             this.ErrorMessages.Add(name, msg)
-            let focused = if this.HasFocused then "💎 | " else ""
             let errorAgainstFailHandling = 
                 if isTrueError then 
                     this.ErrorTests.Value <- this.ErrorTests.Value + 1
@@ -475,9 +522,13 @@ module Pyxpecto =
                 else 
                     this.FailedTests.Value <- this.FailedTests.Value + 1
                     "🚫"
-            printfn $"{focused}{errorAgainstFailHandling} {name}\n\b{msg}" 
+            if not this.Config.Silent then
+                let focused = if this.HasFocused then "💎 | " else ""
+                System.Console.WriteLine $"{focused}{errorAgainstFailHandling} {name}\n\b{msg}" 
 
-        member private this.printSkipPendingMsg (name: string) = printfn "🚧 skipping '%s' ... pending" name
+        member private this.printSkipPendingMsg (name: string) = 
+            if not this.Config.Silent then
+                System.Console.WriteLine (sprintf "🚧 skipping '%s' ... pending" name)
 
         member this.RunTest(test : FlatTest) =
             let name = test.fullname
@@ -539,8 +590,8 @@ module Pyxpecto =
         ) ([],[],[])
         |> fun (b,c,d) -> List.rev b, List.rev c, List.rev d
 
-    let rec private runViaPy (tests: TestCase) =
-        let runner = CustomTestRunner(tests)
+    let rec private universalRun (configArgs: ConfigArg []) (tests: TestCase) =
+        let runner = CustomTestRunner(tests, configArgs)
         let run (runner: CustomTestRunner) =
             let runTests, pendingTests, unfocusedTests = sortTests runner
             async {
@@ -555,7 +606,7 @@ module Pyxpecto =
         #if !FABLE_COMPILER
         System.Console.OutputEncoding <- System.Text.Encoding.UTF8
         #endif
-        printfn "🚀 start running tests ..."
+        System.Console.WriteLine $"🚀 start running {runner.Language.AsLowerCaseString} tests ..."
         async {
             do! run runner
             let innerMsgString = $"""{BColors.INFOBLUE}{runner.SumTests}{BColors.ENDC} tests run - {BColors.INFOBLUE}{runner.SuccessfulTests.Value}{BColors.ENDC} passed, {BColors.INFOBLUE}{runner.IgnoredTests.Value}{BColors.ENDC} ignored, {BColors.INFOBLUE}{runner.FailedTests.Value}{BColors.ENDC} failed, {BColors.INFOBLUE}{runner.ErrorTests.Value}{BColors.ENDC} errored"""
@@ -567,24 +618,24 @@ module Pyxpecto =
                 sb.AppendLine $"{BColors.FAIL}{i}) {name}{BColors.ENDC}\n\b{msg}" |> ignore
             sb.AppendLine() |> ignore
             let msg = sb.AppendLine(sep).AppendLine(innerMsgString).AppendLine(sep).ToString()
-            printfn "%s" msg
+            System.Console.WriteLine(msg)
             let exitCode : int = 
                 match runner.ErrorTests.Value, runner.FailedTests.Value with
                 | errors,_ when errors > 0 ->
-                    Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> printfn "%A"
+                    Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> System.Console.WriteLine
                     CommandLine.exitWith(2)
                     2
                 | _,failed when failed > 0 ->
-                    Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> printfn "%A"
+                    Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> System.Console.WriteLine
                     CommandLine.exitWith(1)
                     1
                 | _ ->
-                    printfn $"{BColors.OKGREEN}Success!{BColors.ENDC}"
+                    System.Console.WriteLine $"{BColors.OKGREEN}Success!{BColors.ENDC}"
                     CommandLine.exitWith(0)
                     0
             return exitCode
         }
 
-    let rec runTests (test: TestCase) = 
-        let r = runViaPy test |> start
+    let runTests (configArgs: ConfigArg []) (test: TestCase) = 
+        let r = universalRun configArgs test |> start
         !!r
