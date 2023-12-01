@@ -4,7 +4,7 @@
 
 | Latest | Prerelease | Downloads |
 |----------------|---------|-----------|
-| <a href="https://www.nuget.org/packages/Fable.Pyxpecto">![Nuget](https://img.shields.io/nuget/v/Fable.Pyxpecto?logo=nuget)</a>|<a href="[https://www.nuget.org/packages/Fable.Pyxpecto](https://www.nuget.org/packages/Fable.Pyxpecto/absoluteLatest)">![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Fable.Pyxpecto?logo=nuget)</a>|![Nuget](https://img.shields.io/nuget/dt/Fable.Pyxpecto?label=downloads)|
+| <a href="https://www.nuget.org/packages/Fable.Pyxpecto">![Nuget](https://img.shields.io/nuget/v/Fable.Pyxpecto?logo=nuget)</a>|<a href="https://www.nuget.org/packages/Fable.Pyxpecto/absoluteLatest">![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Fable.Pyxpecto?logo=nuget)</a>|![Nuget](https://img.shields.io/nuget/dt/Fable.Pyxpecto?label=downloads)|
 
 > This repository is heavily inspired by [Fable.Mocha](https://github.com/Zaid-Ajaj/Fable.Mocha/) by the awesome [@Zaid-Ajaj](https://github.com/Zaid-Ajaj).
 
