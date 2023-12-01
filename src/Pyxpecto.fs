@@ -104,7 +104,7 @@ module Accuracy =
     let high = {absolute=1e-10; relative=1e-7}
     let veryHigh = {absolute=1e-12; relative=1e-9}
 
-module CommandLineArguments =
+module CommandLine =
 
     #if FABLE_COMPILER_PYTHON
     module Python =
@@ -116,17 +116,25 @@ module CommandLineArguments =
 
         let getArgs() : string [] = 
             !!sys?argv
+
+        let exitWith (exitCode: int) : unit = 
+            !!sys?exit(exitCode)
     #endif
 
     #if (FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT)
     module NodeJs =
         [<Emit("process.argv")>]
         let getArgs() : string [] = nativeOnly
+
+        [<Emit("process.exit($0)")>]
+        let exitWith (exitCode: int) : unit = nativeOnly
     #endif
 
     #if !FABLE_COMPILER
     module NET =
         let getArgs() : string [] = Environment.GetCommandLineArgs()
+
+        let exitWith(exitCode: int) : unit = Environment.Exit(exitCode)
     #endif
 
     let getArguments() : string [] =
@@ -141,6 +149,17 @@ module CommandLineArguments =
             NET.getArgs();
             #endif
         args
+
+    let exitWith(exitCode: int) : unit =
+        #if FABLE_COMPILER_PYTHON
+        Python.exitWith(exitCode)
+        #endif
+        #if (FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT)
+        NodeJs.exitWith(exitCode)
+        #endif
+        #if !FABLE_COMPILER
+        NET.exitWith(exitCode)
+        #endif
 
 module BColors =
     open Fable.Core
@@ -421,7 +440,7 @@ module Pyxpecto =
 
         let flatTests = flattenTests test
         let hasFocused = flatTests |> List.exists (fun ft -> ft.focusState = FocusState.Focused)
-        let args = CommandLineArguments.getArguments()
+        let args = CommandLine.getArguments()
         let testPrint = printfn "%A" args
         ///// If the flag '--fail-on-focused-tests' is given to py command AND focused tests exist it will fail.
         //let verifyFocusedAllowed =
@@ -549,25 +568,19 @@ module Pyxpecto =
             sb.AppendLine() |> ignore
             let msg = sb.AppendLine(sep).AppendLine(innerMsgString).AppendLine(sep).ToString()
             printfn "%s" msg
-            // This might not be necessary if the exitcode issue with python is fixed
-            let raiseInJs =
-                #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
-                failwith
-                #else
-                fun _ -> ()
-                #endif
             let exitCode : int = 
                 match runner.ErrorTests.Value, runner.FailedTests.Value with
                 | errors,_ when errors > 0 ->
                     Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> printfn "%A"
-                    raiseInJs "ExitCode: 2"
+                    CommandLine.exitWith(2)
                     2
                 | _,failed when failed > 0 ->
                     Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> printfn "%A"
-                    raiseInJs "ExitCode: 1"
+                    CommandLine.exitWith(1)
                     1
                 | _ ->
                     printfn $"{BColors.OKGREEN}Success!{BColors.ENDC}"
+                    CommandLine.exitWith(0)
                     0
             return exitCode
         }

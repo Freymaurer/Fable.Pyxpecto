@@ -43,13 +43,13 @@ let tests_sequential = testSequenced <| testList "Sequential" [
 
 let tests_basic = testList "Basic" [
     testCase "check fail" <| fun _ ->
-        #if FABLE_COMPILER_PYTHON
+        #if !FABLE_COMPILER
         Expect.equal (1 + 1) 3 "Should be equal"
         #endif
+        Expect.equal (1 + 1) 2 "Should be equal"
         //#if !FABLE_COMPILER
         //Expect.equal (1 + 1) 3 "Should be equal"
         //#endif
-        Expect.equal (1 + 1) 2 "Should be equal"
 
     testCase "testCase works with numbers" <| fun () ->
         Expect.equal (1 + 1) 2 "Should be equal"
