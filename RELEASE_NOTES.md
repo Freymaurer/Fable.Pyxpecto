@@ -1,3 +1,19 @@
+### 1.0.0+c63494b (Released 2023-12-1)
+* Additions:
+    * [[#c63494b](https://github.com/Freymaurer/Fable.Pyxpecto/commit/c63494b013e3ebad8db9e950718f8ee04a179403)] change exit condition for --fail-on-focused-tests
+    * [[#68d8740](https://github.com/Freymaurer/Fable.Pyxpecto/commit/68d8740c2b37a5fdbcae855bfa70e8dfc0edcd6b)] Add info for cmd args :books:
+    * [[#a0dba62](https://github.com/Freymaurer/Fable.Pyxpecto/commit/a0dba62f62dece0fef697cb28cdec96291a5b083)] Update README.md :books
+    * [[#4d8b0cf](https://github.com/Freymaurer/Fable.Pyxpecto/commit/4d8b0cf3ae79fdbe8d4eff7d8d2b0eef2ad67982)] Support flags --silent --fail-on-focused
+    * [[#3f4622b](https://github.com/Freymaurer/Fable.Pyxpecto/commit/3f4622b653746c96eb1ba0f364995268f607b834)] make tests pass
+    * [[#a76fb99](https://github.com/Freymaurer/Fable.Pyxpecto/commit/a76fb99029dbf356b0340943f0ed4a5b295d3a53)] Enable multitarget test running for py, ts, js and .net :tada:
+    * [[#af33c7f](https://github.com/Freymaurer/Fable.Pyxpecto/commit/af33c7fd6934b841cf87b36bd8b466ba57bff8b3)] Add runtime information to async calls :sparkles:
+    * [[#10f5793](https://github.com/Freymaurer/Fable.Pyxpecto/commit/10f5793a7327fefb0b00d779c1374725fe2989f2)] Merge branch 'main' of https://github.com/Freymaurer/Fable.Pyxpecto
+    * [[#585ab01](https://github.com/Freymaurer/Fable.Pyxpecto/commit/585ab01747d38571724a4bb130a342c128cc41fb)] Update version :tada:
+* Bugfixes:
+    * [[#be6e24e](https://github.com/Freymaurer/Fable.Pyxpecto/commit/be6e24e53bbd6ce0e668a454290a73e4675d13d2)] Add Test for typescript equality issue :bug:
+    * [[#ca77f1c](https://github.com/Freymaurer/Fable.Pyxpecto/commit/ca77f1ce62d66a7c0e2ed4b0348b379799de359e)] Fix exit codes :bug: #5
+    * [[#d404861](https://github.com/Freymaurer/Fable.Pyxpecto/commit/d404861f9f31ccb2a9c425f5748339af8968d12e)] rmv parallel testing for now :bug:
+
 ### 0.4.0+97cc5e3 (Released 2023-11-28)
 * Bugfixes:
     * [[#97cc5e3](https://github.com/Freymaurer/Fable.Pyxpecto/commit/97cc5e3b592e0a9a5aa7ab9b5ec15931155c4454)] Fix flattening testList names bug :bug:
