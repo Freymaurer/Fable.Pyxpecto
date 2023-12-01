@@ -16,6 +16,7 @@ Fable.Pyxpecto can be used to run tests in **Python**, **JavaScript**, **TypeScr
   - [Pending](#pending)
   - [Focused](#focused)
   - [Sequential Tests](#sequential-tests)
+  - [Command Line Args](#command-line-arguments)
 - [Install](#install)
 - [Run Tests](#running-tests)
   - [Pyxpecto Only](#language-agnostic)
@@ -85,6 +86,35 @@ let focusedTestsCases =
 Actually all tests run with this library will be sequential. The function is only added to comply with Expecto syntax.
 
 💬 Help wanted. I currently have a prototype implementation for parallel tests on a branch. But it breaks collecting run-tests in .NET.
+
+### Command Line Arguments
+
+Running any py/ts/js/net code from pyxpecto can be customized with flags:
+
+```
+Fable.Pyxtpecto (F#)
+Author: Kevin Frey
+
+Usage:
+  (python/node/npx ts-node/dotnet run) <path_to_entrypoint> [options]
+
+Options:
+  --fail-on-focused-tests       Will exit with ExitCode 4 if run with this argument 
+                                and focused tests are found.
+  --silent                      Only start and result print. No print for each test.
+
+```
+
+These can also be given via: 
+
+```fsharp
+[<EntryPoint>]
+let main argv = 
+    !!Pyxpecto.runTests [|
+        ConfigArg.FailOnFocused
+        ConfigArg.Silent
+    |] all
+```
 
 ## Install
 
