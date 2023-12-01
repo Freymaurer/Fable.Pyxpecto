@@ -4,9 +4,24 @@
 
 > This repository is heavily inspired by [Fable.Mocha](https://github.com/Zaid-Ajaj/Fable.Mocha/) by the awesome [@Zaid-Ajaj](https://github.com/Zaid-Ajaj).
 
-Fable python library for testing. Inspired by the popular Expecto library for F# and adopts the testList, testCase and testCaseAsync primitives for defining tests.
+Inspired by the popular Expecto library for F# and adopts the testList, testCase and testCaseAsync primitives for defining tests.
+
+Fable.Pyxpecto can be used to run tests in **Python**, **JavaScript**, **TypeScript** and **.NET**! Or use compiler statements to switch between Pyxpecto and keep using Fable.Mocha and Expecto!
 
 ![pyxpecto](https://github.com/Freymaurer/Fable.Pyxpecto/assets/39732517/c5d09db3-8f63-4372-8655-6330c8a00af1)
+
+**Table of Contents**
+- [Features](#features)
+  - [Reuse Expecto/Fable.Mocha Tests](#reuse-expectofablemocha-tests)
+  - [Pending](#pending)
+  - [Focused](#focused)
+  - [Sequential Tests](#sequential-tests)
+- [Install](#install)
+- [Run Tests](#running-tests)
+  - [Pyxpecto Only](#language-agnostic)
+  - [With Fable.Mocha and Expecto](#with-mocha-and-expecto)
+- [Development](#development)
+
 
 ## Features
 
@@ -28,6 +43,8 @@ let tests_basic = testList "Basic" [
         let actual = Ok true
         Expect.isOk actual "Should be Ok"
 ]
+
+
 ```
 ### Pending
 
@@ -67,6 +84,8 @@ let focusedTestsCases =
 
 Actually all tests run with this library will be sequential. The function is only added to comply with Expecto syntax.
 
+💬 Help wanted. I currently have a prototype implementation for parallel tests on a branch. But it breaks collecting run-tests in .NET.
+
 ## Install
 
 From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto) with:
@@ -75,6 +94,53 @@ From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto) with:
 - `<PackageReference Include="Fable.Pyxpecto" Version="0.0.0" />`
 
 ## Running tests
+
+### Language Agnostic
+
+Fable.Pyxpecto does not use any dependencies and tries to support as many fable languages as possible. 
+Check out the [multitarget test project](./tests/Multitarget.Tests) to see it fully set up!
+
+```fsharp
+open Fable.Pyxpecto
+
+// This is possibly the most magic used to make this work. 
+// Js and ts cannot use `Async.RunSynchronously`, instead they use `Async.StartAsPromise`.
+// Here we need the transpiler not to worry about the output type.
+#if !FABLE_COMPILER_JAVASCRIPT && !FABLE_COMPILER_TYPESCRIPT
+let (!!) (any: 'a) = any
+#endif
+#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+open Fable.Core.JsInterop
+#endif
+
+[<EntryPoint>]
+let main argv = !!Pyxpecto.runTests [||] all
+```
+
+Then run it using:
+
+- **.NET**: `dotnet run`
+- **JavaScript**: 
+  - `dotnet fable {rootPath} -o {rootPath}/{js_folder_name}`
+  - `node {rootPath}/{js_folder_name}/Main.js`
+  - *Requirements*:
+    - nodejs installed. 
+    - package.json with `"type": "module"`.
+    - init with `npm init`.
+    - See: [package.json](./package.json).
+- **TypeScript**:
+  - `dotnet fable {rootPath} --lang ts -o {rootPath}/{ts_folder_name}`
+  - `npx ts-node {rootPath}/{ts_folder_name}/Main.ts`
+  - *Requirements*: 
+    - possible same as JavaScript.
+    - Require tsconfig file, see: [tsconfig.json](./tsconfig.json). (💬 Help wanted)
+- **Python**:
+  - `dotnet fable {rootPath} --lang py -o {rootPath}/{py_folder_name}`
+  - `python {rootPath}/{py_folder_name}/main.py`
+  - *Requirements*: 
+    - python executable on your PATH, or replace `python` with `path/to/python.exe`.
+
+### With Mocha and Expecto
 
 Use the following syntax to automatically switch between Expecto, Fable.Mocha and Pyxpecto:
 
@@ -144,6 +210,13 @@ Run all commands in root.
 
 Can be specified to run tests for specific environment.
 
+> Switch test project
 - `./build.cmd runtestsdotnet`
 - `./build.cmd runtestsjs`
 - `./build.cmd runtestspy`
+
+> Multitarget test project
+- `./build.cmd runmtpy`
+- `./build.cmd runmtjs`
+- `./build.cmd runmtts`
+- `./build.cmd runmtnet`

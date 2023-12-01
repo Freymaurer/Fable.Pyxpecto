@@ -55,6 +55,10 @@ let runMultiTargetTests = BuildTask.create "runMt" [clean; build; RunMt.js; RunM
     ()
 }
 
-let runTests = BuildTask.create "RunTests" [clean; build; runTestsDotNet; runTestsPy; runTestsJs] { 
+let runSwitchTests = BuildTask.create "runswitch" [clean; build; runTestsDotNet; runTestsPy; runTestsJs] { 
+    ()
+}
+
+let runTests = BuildTask.create "runTests" [clean; build; runMultiTargetTests; runSwitchTests] { 
     ()
 }

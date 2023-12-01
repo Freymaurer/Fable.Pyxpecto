@@ -9,7 +9,7 @@
 		<Authors>Kevin Frey</Authors>
 		<Description>Fable python unit tests, like Fable.Mocha with Expecto syntax.</Description>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageTags>fsharp fable fable-library fable-python testing unit-testing</PackageTags>
+		<PackageTags>fsharp fable fable-library fable-python fable-dotnet fable-javascript fable-typescript testing unit-testing</PackageTags>
 		<PackageProjectUrl>https://github.com/Freymaurer/Fable.Pyxpecto</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Freymaurer/Fable.Pyxpecto</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>

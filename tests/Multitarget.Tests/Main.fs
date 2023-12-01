@@ -384,4 +384,4 @@ open Fable.Core.JsInterop
 #endif
 
 [<EntryPoint>]
-let main argv = !!Pyxpecto.runTests (ConfigArg.fromStrings argv) all
+let main argv = !!Pyxpecto.runTests [||] all
