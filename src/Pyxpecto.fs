@@ -491,7 +491,9 @@ module Pyxpecto =
         let _config = Array.append codeArgs (ConfigArg.fromStrings args) |> Config
         /// If the flag '--fail-on-focused-tests' is given to py command AND focused tests exist it will fail.
         let verifyFocusedAllowed =
-            if _config.FailOnFocused && hasFocused then failwith $"{BColors.FAIL}Cannot run focused tests with '{ConfigArgLiterals.FailOnFocused}' commandline arg.{BColors.ENDC}"
+            if _config.FailOnFocused && hasFocused then 
+                printfn $"{BColors.FAIL}Cannot run focused tests with '{ConfigArgLiterals.FailOnFocused}' commandline arg.{BColors.ENDC}"
+                CommandLine.exitWith(4)
 
         member val Language = Language.get() with get
         member val Config = _config with get
