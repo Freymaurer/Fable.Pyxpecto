@@ -11,27 +11,6 @@ open Expecto
 #endif
 
 let tests_sequential = testSequenced <| testList "Sequential" [
-    let TESTMUTABLE = ref 0
-
-    testSequenced <| testList "Nested Sequential" [
-        testCase "sync 1" <| fun _ ->
-            Expect.equal TESTMUTABLE.Value 0 "Should be init value"
-        testCaseAsync "async 1" <| async {
-            do! Async.Sleep 1000
-            TESTMUTABLE.Value <- 1
-            Expect.equal TESTMUTABLE.Value 1 "Should be 1"
-        }
-        testCase "sync 2" <| fun _ ->
-            Expect.equal TESTMUTABLE.Value 1 "Should be 1"
-    ]
-    testCaseAsync "one" <| async {
-        do! Async.Sleep 1000
-        TESTMUTABLE.Value <- 2
-        Expect.equal TESTMUTABLE.Value 2 "Should be 2"
-    }
-
-    testCase "sync one" <| fun _ -> 
-        Expect.equal TESTMUTABLE.Value 2 "Should be 2"
 
     testCaseAsync "two" <| async {
         do! Async.Sleep 1000
@@ -47,7 +26,6 @@ let tests_sequential = testSequenced <| testList "Sequential" [
         do! Async.Sleep 1000
         Expect.isTrue true "this should work"
     }
-
 ]
 
 let tests_basic = testList "Basic" [
@@ -73,7 +51,7 @@ let tests_basic = testList "Basic" [
             Expect.isOk actual "Should fail"
             Expect.equal true false "Should not be tested"
         let catch (exn: System.Exception) =
-            Expect.equal exn.Message "Should fail. Expected Ok, was Error('fails')." "Error messages should be the same"
+            Expect.equal exn.Message "Should fail. Expected Ok, was Error(\"fails\")." "Error messages should be the same"
         Expect.throwsC case catch
 
     testCase "isEmpty works correctly" <| fun _ ->

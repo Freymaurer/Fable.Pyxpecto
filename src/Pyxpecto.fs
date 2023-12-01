@@ -297,7 +297,7 @@ module Expect =
     let isOk x message =
         match x with
         | Ok _ -> passWithMsg message
-        | Error x' -> expectError(sprintf "%s. Expected Ok, was Error('%s')." message (string x'))
+        | Error x' -> expectError(sprintf "%s. Expected Ok, was Error(\"%s\")." message (string x'))
     /// Expects the value to be a Result.Ok value and returns it or fails the test
     let wantOk x message =
         match x with
@@ -595,12 +595,12 @@ module Pyxpecto =
         let run (runner: CustomTestRunner) =
             let runTests, pendingTests, unfocusedTests = sortTests runner
             async {
+                for ft in runTests do
+                    do! runner.RunTest(ft)
                 for ft in pendingTests do
                     runner.SkipPendingTest ft.fullname
                 for _ in unfocusedTests do
                     runner.SkipUnfocusedTest()
-                for ft in runTests do
-                    do! runner.RunTest(ft)
             }
         // enable emoji support for .NET
         #if !FABLE_COMPILER

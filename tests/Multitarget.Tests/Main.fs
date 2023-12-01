@@ -57,6 +57,18 @@ let tests_basic = testList "Basic" [
     testCase "areEqual with msg" <| fun _ ->
         Expect.equal 2 2 "They are the same"
 
+    testCase "equal fails correctly" <| fun _ ->
+        let case () =
+            Expect.equal 2 3 "Should fail"
+            Expect.equal true false "Should not be tested"
+        let catch (exn: System.Exception) =
+            let isAssertExn = 
+                match exn with
+                | :? Model.AssertException -> true
+                | _ -> false
+            Expect.isTrue isAssertExn "should be Model.AssertException"
+        Expect.throwsC case catch
+
     testCase "isOk works correctly" <| fun _ ->
         let actual = Ok true
         Expect.isOk actual "Should be Ok"
@@ -67,7 +79,7 @@ let tests_basic = testList "Basic" [
             Expect.isOk actual "Should fail"
             Expect.equal true false "Should not be tested"
         let catch (exn: System.Exception) =
-            Expect.equal exn.Message "Should fail. Expected Ok, was Error('fails')." "Error messages should be the same"
+            Expect.equal exn.Message "Should fail. Expected Ok, was Error(\"fails\")." "Error messages should be the same"
         Expect.throwsC case catch
 
     testCase "isEmpty works correctly" <| fun _ ->
