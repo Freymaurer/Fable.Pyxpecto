@@ -194,7 +194,7 @@ open Expecto
 [<EntryPoint>]
 let main argv =
     #if FABLE_COMPILER_PYTHON
-    Pyxpecto.runTests all
+    Pyxpecto.runTests [||] all
     #endif
     #if FABLE_COMPILER_JAVASCRIPT
     Mocha.runTests all
