@@ -1,3 +1,12 @@
+### 1.0.1+247e6e2 (Released 2023-12-15)
+* Additions:
+    * [[#247e6e2](https://github.com/Freymaurer/Fable.Pyxpecto/commit/247e6e2f8251acfb4a1b0438b38097d2c30051e5)] update test ci to work around node 20 ts esm issue
+    * [[#e6b3c9b](https://github.com/Freymaurer/Fable.Pyxpecto/commit/e6b3c9b22ba496b1056d7fac4f0238844c4b82b8)] Merge branch 'main' of https://github.com/Freymaurer/Fable.Pyxpecto
+    * [[#a464014](https://github.com/Freymaurer/Fable.Pyxpecto/commit/a464014d9a29dd46b1fe5d50d8e0bfe1d462d903)] update prerelease task to not include metadata
+    * [[#70f2778](https://github.com/Freymaurer/Fable.Pyxpecto/commit/70f2778e5f993bcaf945e22769b9d6d16bd1e9ee)] Update README.md
+    * [[#dd23bcf](https://github.com/Freymaurer/Fable.Pyxpecto/commit/dd23bcf5eda657d0c2aad8d415945f455776fe60)] Update README.md
+    * [[#cbc6369](https://github.com/Freymaurer/Fable.Pyxpecto/commit/cbc6369a595e86d87556a2a9d8fb4b7bc6f537aa)] Update ReleaseNotes
+
 ### 1.0.0+c63494b (Released 2023-12-1)
 * Additions:
     * [[#c63494b](https://github.com/Freymaurer/Fable.Pyxpecto/commit/c63494b013e3ebad8db9e950718f8ee04a179403)] change exit condition for --fail-on-focused-tests
