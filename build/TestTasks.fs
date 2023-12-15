@@ -44,7 +44,7 @@ module RunMt =
     let ts = BuildTask.create "runMtTs" [clean; build] { 
         let ts_folder_name = "ts"
         run dotnet $"fable {rootPath} --lang ts -o {rootPath}/{ts_folder_name}" ""
-        run npx $"ts-node {rootPath}/{ts_folder_name}/Main.ts" ""
+        run node $"--loader ts-node/esm {rootPath}/{ts_folder_name}/Main.ts" ""
     }
 
     let net = BuildTask.create "runMtNet" [clean; build] { 
