@@ -608,7 +608,8 @@ module Pyxpecto =
         #if !FABLE_COMPILER
         System.Console.OutputEncoding <- System.Text.Encoding.UTF8
         #endif
-        System.Console.WriteLine $"🚀 start running {runner.Language.AsLowerCaseString} tests ..."
+        let time = System.DateTime.Now.ToString("HH:mm:ss yyyy.MM.dd")
+        System.Console.WriteLine $"🚀 start running {runner.Language.AsLowerCaseString} tests ... [{time}]"
         async {
             do! run runner
             let innerMsgString = $"""{BColors.INFOBLUE}{runner.SumTests}{BColors.ENDC} tests run - {BColors.INFOBLUE}{runner.SuccessfulTests.Value}{BColors.ENDC} passed, {BColors.INFOBLUE}{runner.IgnoredTests.Value}{BColors.ENDC} ignored, {BColors.INFOBLUE}{runner.FailedTests.Value}{BColors.ENDC} failed, {BColors.INFOBLUE}{runner.ErrorTests.Value}{BColors.ENDC} errored"""
