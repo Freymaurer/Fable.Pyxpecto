@@ -1,3 +1,12 @@
+### 1.1.0+27d070e (Released 2024-4-12)
+* Additions:
+    * [[#bfaac3b](https://github.com/Freymaurer/Fable.Pyxpecto/commit/bfaac3b2617d20dd66591b2884f990b603592cff)] Update README.md
+    * [[#5843065](https://github.com/Freymaurer/Fable.Pyxpecto/commit/58430655d1a14b0b74f4b69d2f0d8a0434b81cd0)] Update version, as i had some past issue with beta release and semver metadata
+    * [[#3ea2cad](https://github.com/Freymaurer/Fable.Pyxpecto/commit/3ea2cad035401ddb29499761091246652b593deb)] Merge branch 'main' of https://github.com/Freymaurer/Fable.Pyxpecto
+    * [[#272a163](https://github.com/Freymaurer/Fable.Pyxpecto/commit/272a163e18e6ddc49f1030a17590c1c27bee0fdd)] add datetime to runs #6
+* Bugfixes:
+    * [[#27d070e](https://github.com/Freymaurer/Fable.Pyxpecto/commit/27d070ecc3849ce6cabd79565a358993bf26afae)] Correctly fail in .NET :bug: #8
+
 ### 1.0.1+247e6e2 (Released 2023-12-15)
 * Additions:
     * [[#247e6e2](https://github.com/Freymaurer/Fable.Pyxpecto/commit/247e6e2f8251acfb4a1b0438b38097d2c30051e5)] update test ci to work around node 20 ts esm issue
