@@ -1,6 +1,7 @@
 ﻿module Fable.Pyxpecto.Tests
 
 open Fable.Pyxpecto
+open Fable.Core
 
 let tests_sequential = testSequenced <| testList "Sequential" [
     let mutable TESTMUTABLE = 0
@@ -63,6 +64,7 @@ let tests_basic = testList "Basic" [
             Expect.equal true false "Should not be tested"
         let catch (exn: System.Exception) =
             let isAssertExn = 
+                printfn "LOOK AT ME"
                 match exn with
                 | :? Model.AssertException -> true
                 | _ -> false
@@ -324,6 +326,20 @@ let nestedTestCase =
         ]
     ]
 
+let equalityTestCases =
+    testList "Equality" [
+        testCase "equal" <| fun _ ->
+            Expect.equal 1 1 "should be equal"
+        testCase "equal fails" <| fun _ ->
+            let f = fun () -> Expect.equal 1 2 "fails"
+            Expect.throws f "verify equal is failing correctly"
+        testCase "notEqual" <| fun _ ->
+            Expect.notEqual 1 2 "should not be equal"
+        testCase "notEqual fails" <| fun _ ->
+            let f = fun () -> Expect.notEqual 1 1 "fails"
+            Expect.throws f "verify notEqual is failing correctly"
+    ]
+
 let focusedTestCases =
     testList "Focused" [
         ftestCase "Focused sync test" <| fun _ ->
@@ -334,21 +350,29 @@ let focusedTestCases =
             }
     ]
 
+let createJsDivideBy0Error () = 
+    #if FABLE_COMPILER && !FABLE_COMPILER_PYTHON
+    5n / 0n
+    #else
+    5 / 0
+    #endif
+
 let errorTestCases =
     testList "Error" [
         ftestCase "Error binding test" <| fun _ ->
-            let actual = 5 / 0
+            let actual = createJsDivideBy0Error() // only bigint ("n") numbers create divide by 0 error in js, but bigint numbers are not supported in py
             Expect.equal (actual) 0 "Inside Binding"
+            //Expect.equal (actualJS()) 0 "Inside Binding"
         ftestCaseAsync "Error async binding test" <|
             async {
-                let actual = 5 / 0
+                let actual = createJsDivideBy0Error()
                 Expect.equal (actual) 2 "Inside Binding async"
             }
         ftestCase "Error expect test" <| fun _ ->
-            Expect.equal (5 / 0) 0 "Inside Expect"
+            Expect.equal (createJsDivideBy0Error()) 0 "Inside Expect"
         ftestCaseAsync "Error async expect test" <|
             async {
-                Expect.equal (5 / 0) 2 "Inside Expect async"
+                Expect.equal (createJsDivideBy0Error()) 2 "Inside Expect async"
             }
     ]
 
@@ -368,6 +392,7 @@ let all =
         secondModuleTests
         structuralEqualityTests
         nestedTestCase
+        equalityTestCases
         //focusedTestCases
         //errorTestCases
         //failedTestCases
