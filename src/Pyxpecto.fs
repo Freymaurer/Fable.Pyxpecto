@@ -61,8 +61,8 @@ module Model =
     type TestCase =
         | SyncTest of string * (unit -> unit) * FocusState
         | AsyncTest of string * Async<unit> * FocusState
-        | TestList of string * TestCase list
-        | TestListSequential of string * TestCase list
+        | TestList of string * TestCase list * FocusState
+        | TestListSequential of string * TestCase list * FocusState
 
     type AssertException(msg) = inherit Exception(msg) 
 
@@ -283,13 +283,16 @@ module Test =
     let testCaseAsync name body = AsyncTest(name, body, Normal)
     let ptestCaseAsync name body = AsyncTest(name, body, Pending)
     let ftestCaseAsync name body = AsyncTest(name, body, Focused)
-    let testList name tests = TestList(name, tests)
+    let testList name tests = TestList(name, tests, Normal)
+    let ftestList name tests = TestList(name, tests, Focused)
+    let ptestList name tests = TestList(name, tests, Pending)
     let testSequenced test =
         match test with
-        | SyncTest(name, test, state) -> TestListSequential(name, [ SyncTest(name, test, state) ])
-        | AsyncTest(name, test, state) -> TestListSequential(name, [ AsyncTest(name, test, state) ])
-        | TestList(name, tests) -> TestListSequential(name, tests)
-        | TestListSequential(name, tests) -> TestListSequential(name, tests)
+        | SyncTest(name, test, state) -> TestListSequential(name, [ SyncTest(name, test, state) ], state)
+        | AsyncTest(name, test, state) -> TestListSequential(name, [ AsyncTest(name, test, state) ], state)
+        | TestList(name, tests, focused) -> TestListSequential(name, tests, focused)
+        | TestListSequential(name, tests, focused) -> TestListSequential(name, tests, focused)
+
 
     /// Test case computation expression builder
     type TestCaseBuilder (name: string, focusState: FocusState) =
@@ -538,29 +541,35 @@ module Pyxpecto =
 
     /// Flattens a tree of tests
     let flattenTests test =
-        let rec loop parentName testList sequenced test =
+        // if listState <> Normal then propagate list state, e.g. focused or pending
+        let getPrioritisedState testState listState = 
+            match listState with | Focused | Pending -> listState | _ -> testState
+        let rec loop parentName testList sequenced (listState: FocusState) test =
+
             match test with
-            | TestCase.SyncTest (name, test, state) ->
+            | TestCase.SyncTest (name, test, state0) ->
+                let state = getPrioritisedState state0 listState
                 FlatTest.create(
                     parentName@[name],
                     TestCode.Sync test,
                     state,
                     sequenced
                 ) :: testList
-            | TestCase.AsyncTest (name, test, state) ->
+            | TestCase.AsyncTest (name, test, state0) ->
+                let state = getPrioritisedState state0 listState
                 FlatTest.create(
                     parentName@[name],
                     TestCode.Async test,
                     state,
                     sequenced
                 ) :: testList
-            | TestList (name, tests) -> 
+            | TestList (name, tests, state) -> 
                 let names = parentName @ [name]
-                tests |> List.collect (loop names testList sequenced) 
-            | TestListSequential (name, tests) -> 
+                tests |> List.collect (loop names testList sequenced state) 
+            | TestListSequential (name, tests, state) -> 
                 let names = parentName @ [name]
-                tests |> List.collect (loop names testList SequenceMethod.Sequential) 
-        loop [] [] SequenceMethod.Parallel test
+                tests |> List.collect (loop names testList SequenceMethod.Sequential state) 
+        loop [] [] SequenceMethod.Parallel FocusState.Normal test 
 
     [<AttachMembersAttribute>]
     type CustomTestRunner(test:TestCase, ?configArgs: ConfigArg []) =

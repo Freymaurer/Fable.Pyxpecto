@@ -341,13 +341,19 @@ let equalityTestCases =
     ]
 
 let focusedTestCases =
-    testList "Focused" [
-        ftestCase "Focused sync test" <| fun _ ->
-            Expect.equal (1 + 1) 2 "Should be equal"
-        ftestCaseAsync "Focused async test" <|
-            async {
-                Expect.equal (1 + 1) 2 "Should be equal"
-            }
+    testList "unfocused list" [
+        ftestList "focused list" [
+            testCase "will run" <| fun () -> Expect.equal (2+2) 4 "2+2"
+            ftestCase "will run" <| fun () -> Expect.equal (2+2) 4 "2+2"
+            test "will run" { Expect.equal (2+2) 4 "2+2" }
+        ]
+        testList "unfocused list" [
+            testCase "skipped" <| fun () -> Expect.equal (2+2) 1 "2+2?"
+            ftestCase "will run" <| fun () -> Expect.equal (2+2) 4 "2+2"
+            test "skipped" { Expect.equal (2+2) 1 "2+2?" }
+            ftest "will run" { Expect.equal (2+2) 4 "2+2" }
+        ]
+        testCase "skipped" <| fun () -> Expect.equal (2+2) 1 "2+2?"
     ]
 
 let createJsDivideBy0Error () = 
@@ -376,6 +382,22 @@ let errorTestCases =
             }
     ]
 
+let pendingListTestCases =
+    testList "normal" [
+        testList "unfocused list" [
+            ptestCase "skipped" <| fun () -> Expect.equal (2+2) 1 "2+2?"
+            testCase "will run" <| fun () -> Expect.equal (2+2) 4 "2+2"
+            ptest "skipped" { Expect.equal (2+2) 1 "2+2?" }
+            ptestAsync "skipped async" { Expect.equal (2+2) 1 "2+2?" }
+        ]
+        testCase "will run" <| fun () -> Expect.equal (2+2) 4 "2+2"
+        ptestCase "skipped" <| fun () -> Expect.equal (2+2) 1 "2+2?"
+        ptestList "skipped list" [
+            testCase "skipped" <| fun () -> Expect.equal (2+2) 1 "2+2?"
+            ftest "skipped" { Expect.equal (2+2) 1 "2+2?" }
+        ]
+    ]
+
 let failedTestCases = 
     testList "Fail" [
         ftestCase "not equal" <| fun _ ->
@@ -393,6 +415,7 @@ let all =
         structuralEqualityTests
         nestedTestCase
         equalityTestCases
+        pendingListTestCases
         //focusedTestCases
         //errorTestCases
         //failedTestCases
