@@ -1,3 +1,8 @@
+### 1.2.0+75176fb (Released 2024-6-21)
+* Additions:
+    * [[#0db8556](https://github.com/Freymaurer/Fable.Pyxpecto/commit/0db8556928df7404e833610e0ce4b6544f0728a0)] Add ftestList and ptestList :sparkles: #10
+    * [[#75176fb](https://github.com/Freymaurer/Fable.Pyxpecto/commit/75176fb4d134803f50849ce865d4ed3f064a5eea)] Add Suspect utils #9
+
 ### 1.1.0+27d070e (Released 2024-4-12)
 * Additions:
     * [[#bfaac3b](https://github.com/Freymaurer/Fable.Pyxpecto/commit/bfaac3b2617d20dd66591b2884f990b603592cff)] Update README.md
