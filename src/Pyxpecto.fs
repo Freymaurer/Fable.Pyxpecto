@@ -729,6 +729,14 @@ module Pyxpecto =
         #if !FABLE_COMPILER
         System.Console.OutputEncoding <- System.Text.Encoding.UTF8
         #endif
+
+        #if FABLE_COMPILER_PYTHON
+        Fable.Core.PyInterop.emitPyExpr () """import sys
+import io
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')"""
+        #endif
+
         let time = System.DateTime.Now.ToString("HH:mm:ss yyyy.MM.dd")
         System.Console.WriteLine $"{BColors.ENDC}🚀 start running {runner.Language.AsLowerCaseString} tests ... [{time}]"
         async {
@@ -746,11 +754,11 @@ module Pyxpecto =
             let exitCode : int = 
                 match runner.ErrorTests.Value, runner.FailedTests.Value with
                 | errors,_ when errors > 0 ->
-                    Exception($"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}") |> System.Console.WriteLine
+                    Exception $"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}" |> System.Console.WriteLine
                     CommandLine.exitWith(2)
                     2
                 | _,failed when failed > 0 ->
-                    Exception($"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}") |> System.Console.WriteLine
+                    Exception $"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}" |> System.Console.WriteLine
                     CommandLine.exitWith(1)
                     1
                 | _ ->
