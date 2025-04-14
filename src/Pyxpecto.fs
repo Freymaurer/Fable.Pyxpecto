@@ -547,15 +547,19 @@ module ConfigArgLiterals =
 
     let [<Literal>] FailOnFocused = @"--fail-on-focused-tests"
     let [<Literal>] Silent = @"--silent"
+
+    let [<Literal>] DoNotExitWithCode = @"--do-not-exit-with-code"
     
 type ConfigArg =
 | FailOnFocused
 | Silent
+| DoNotExitWithCode
 with 
     static member fromString (s: string) =
         match s with
         | ConfigArgLiterals.FailOnFocused -> Some FailOnFocused
         | ConfigArgLiterals.Silent -> Some Silent
+        | ConfigArgLiterals.DoNotExitWithCode -> Some DoNotExitWithCode
         | _ -> None
 
     static member fromStrings (arr: string []) : ConfigArg [] =
@@ -565,8 +569,9 @@ with
 
 type Config(args: ConfigArg []) = 
     let argExists(arg: ConfigArg) = Array.contains arg args
-    member val FailOnFocused: bool = argExists ConfigArg.FailOnFocused with get, set
-    member val Silent: bool = argExists ConfigArg.Silent with get, set
+    member val FailOnFocused: bool = argExists ConfigArg.FailOnFocused with get
+    member val Silent: bool = argExists ConfigArg.Silent with get
+    member val DoNotExitWithCode: bool = argExists ConfigArg.DoNotExitWithCode with get
 
 module Pyxpecto =
 
@@ -610,7 +615,7 @@ module Pyxpecto =
         let args = CommandLine.getArguments()
         let codeArgs = defaultArg configArgs [||]
         let _config = Array.append codeArgs (ConfigArg.fromStrings args) |> Config
-        /// If the flag '--fail-on-focused-tests' is given to py command AND focused tests exist it will fail.
+        /// If the flag '--fail-on-focused-tests' is given to command AND focused tests exist it will fail.
         let verifyFocusedAllowed =
             if _config.FailOnFocused && hasFocused then 
                 printfn $"{BColors.FAIL}Cannot run focused tests with '{ConfigArgLiterals.FailOnFocused}' commandline arg.{BColors.ENDC}"
@@ -755,15 +760,18 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')"""
                 match runner.ErrorTests.Value, runner.FailedTests.Value with
                 | errors,_ when errors > 0 ->
                     Exception $"{BColors.FAIL}❌ Exited with error code 2{BColors.ENDC}" |> System.Console.WriteLine
-                    CommandLine.exitWith(2)
+                    if not runner.Config.DoNotExitWithCode then
+                        CommandLine.exitWith(2)
                     2
                 | _,failed when failed > 0 ->
                     Exception $"{BColors.FAIL}❌ Exited with error code 1{BColors.ENDC}" |> System.Console.WriteLine
-                    CommandLine.exitWith(1)
+                    if not runner.Config.DoNotExitWithCode then
+                        CommandLine.exitWith(1)
                     1
                 | _ ->
                     System.Console.WriteLine $"{BColors.OKGREEN}Success!{BColors.ENDC}"
-                    CommandLine.exitWith(0)
+                    if not runner.Config.DoNotExitWithCode then
+                        CommandLine.exitWith(0)
                     0
             return exitCode
         }

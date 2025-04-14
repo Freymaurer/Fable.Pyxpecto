@@ -15,17 +15,22 @@ Fable.Pyxpecto can be used to run tests in **Python**, **JavaScript**, **TypeScr
 ![pyxpecto](https://github.com/Freymaurer/Fable.Pyxpecto/assets/39732517/c5d09db3-8f63-4372-8655-6330c8a00af1)
 
 **Table of Contents**
-- [Features](#features)
-  - [Reuse Expecto/Fable.Mocha Tests](#reuse-expectofablemocha-tests)
-  - [Pending](#pending)
-  - [Focused](#focused)
-  - [Sequential Tests](#sequential-tests)
-  - [Command Line Args](#command-line-arguments)
-- [Install](#install)
-- [Run Tests](#running-tests)
-  - [Pyxpecto Only](#language-agnostic)
-  - [With Fable.Mocha and Expecto](#with-mocha-and-expecto)
-- [Development](#development)
+- [Fable.Pyxpecto](#fablepyxpecto)
+  - [Features](#features)
+    - [Reuse Expecto/Fable.Mocha Tests](#reuse-expectofablemocha-tests)
+    - [Pending](#pending)
+    - [Focused](#focused)
+    - [Sequential Tests](#sequential-tests)
+    - [Command Line Arguments](#command-line-arguments)
+  - [Install](#install)
+  - [Running tests](#running-tests)
+    - [Language Agnostic](#language-agnostic)
+    - [With Mocha and Expecto](#with-mocha-and-expecto)
+  - [Development](#development)
+    - [Requirements](#requirements)
+    - [Setup](#setup)
+    - [Routines](#routines)
+      - [Tests](#tests)
 
 
 ## Features
@@ -106,6 +111,9 @@ Options:
   --fail-on-focused-tests       Will exit with ExitCode 4 if run with this argument 
                                 and focused tests are found.
   --silent                      Only start and result print. No print for each test.
+
+  --do-not-exit-with-code       Will only return integer as result and not explicitly call `Environment.Exit`. 
+                                This can be useful to call Pyxpecto tests from foreign test frameworks
 
 ```
 
