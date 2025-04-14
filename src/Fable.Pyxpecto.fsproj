@@ -13,11 +13,13 @@
 		<PackageProjectUrl>https://github.com/Freymaurer/Fable.Pyxpecto</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Freymaurer/Fable.Pyxpecto</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Include="../README.md" Pack="true" PackagePath="\"/>
     <Compile Include="Pyxpecto.fs" />
-  </ItemGroup>
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Fable.Core" Version="4.1.0" />

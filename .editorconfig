@@ -1,0 +1,15 @@
+# top-most EditorConfig file
+root = true
+
+# Default for all files: tabs as 4 spaces
+[*]
+indent_style = space
+indent_size = 4
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Override for F# project files (*.fsproj): use 2 spaces
+[*.fsproj]
+indent_size = 2
