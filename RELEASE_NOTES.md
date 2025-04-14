@@ -1,3 +1,10 @@
+### 1.3.0+48a96e5 (Released 2025-4-14)
+* Additions:
+    * [[#cbd0e7c](https://github.com/Freymaurer/Fable.Pyxpecto/commit/cbd0e7cb8da1e587511ea89aac41bf6fbb8306bb)] Enhance README and Pyxpecto to support --do-not-exit-with-code flag #12
+    * [[#48a96e5](https://github.com/Freymaurer/Fable.Pyxpecto/commit/48a96e57685d21e8272e29dc4c5f73270c6bbefd)] Add additional async run tests
+* Bugfixes:
+    * [[#08c2b1f](https://github.com/Freymaurer/Fable.Pyxpecto/commit/08c2b1f579fb97608e2262718e67737cc4ee99d3)] Fix python emoji issue on windows #11
+
 ### 1.2.0+75176fb (Released 2024-6-21)
 * Additions:
     * [[#0db8556](https://github.com/Freymaurer/Fable.Pyxpecto/commit/0db8556928df7404e833610e0ce4b6544f0728a0)] Add ftestList and ptestList :sparkles: #10
