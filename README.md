@@ -181,6 +181,7 @@ Then run it using:
   - `python {rootPath}/{py_folder_name}/main.py`
   - *Requirements*:
     - python (v>=3.12) executable on your PATH, or replace `python` with `path/to/python.exe`.
+    - installed `fable-library` python dependency (`version = "5.0.0a17"`)
 
 ### With Mocha and Expecto
 
