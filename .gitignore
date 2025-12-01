@@ -400,3 +400,5 @@ FodyWeavers.xsd
 /tests/**/js
 /tests/**/py
 /tests/**/ts
+/obj
+/bin
