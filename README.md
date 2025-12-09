@@ -172,7 +172,7 @@ Then run it using:
     - See: [package.json](./package.json).
 - **TypeScript**:
   - `dotnet fable {rootPath} --lang ts -o {rootPath}/{ts_folder_name}`
-  - `npx ts-node {rootPath}/{ts_folder_name}/Main.ts`
+  - `npx tsx {rootPath}/{ts_folder_name}/Main.ts`
   - *Requirements*:
     - possible same as JavaScript.
     - Require tsconfig file, see: [tsconfig.json](./tsconfig.json). (💬 Help wanted)
