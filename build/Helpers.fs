@@ -17,9 +17,9 @@ module Proc =
 
         let locker = obj()
 
-        let colors = [|  
+        let colors = [|
             ConsoleColor.DarkYellow
-            ConsoleColor.DarkCyan 
+            ConsoleColor.DarkCyan
             ConsoleColor.Magenta
             ConsoleColor.Blue
             ConsoleColor.Cyan
@@ -85,12 +85,12 @@ let npm =
 
     createProcess npmPath
 
-let python =
+let uv =
     let path =
-        match ProcessUtils.tryFindFileOnPath "python" with
+        match ProcessUtils.tryFindFileOnPath "uv" with
         | Some path -> path
         | None ->
-            "python was not found in path. Please install it and make sure it's available from your path."
+            "uv was not found in path. Please install it and make sure it's available from your path."
             |> failwith
 
     createProcess path

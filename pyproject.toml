@@ -1,0 +1,9 @@
+[project]
+name = "fable-pyxpecto"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fable-library==5.0.0a20",
+]

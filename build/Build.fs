@@ -13,26 +13,11 @@ initializeContext()
 
 open BasicTasks
 open TestTasks
-open PackageTasks
-open ReleaseTasks
 
-let _ = TestTasks.runTestsPy
-let _ = TestTasks.runTestsDotNet
-let _ = TestTasks.runTestsJs
-let _ = ReleaseNotesTasks.updateReleaseNotes
-
-/// Full release of nuget package, git tag, and documentation for the stable version.
-let _release = 
-    BuildTask.createEmpty 
-        "Release" 
-        [clean; build; runTests; pack; createTag; publishNuget]
-
-/// Full release of nuget package, git tag, and documentation for the prerelease version.
-let _preRelease = 
-    BuildTask.createEmpty 
-        "PreRelease" 
-        [setPrereleaseTag; clean; build; runTests; packPrerelease; createPrereleaseTag; publishNugetPrerelease]
+let _ = TestTasks.runMultiTargetTests
+let _ = TestTasks.runSwitchTests
+let _ = TestTasks.runTests
 
 [<EntryPoint>]
-let main args = 
+let main args =
     runOrDefault build args

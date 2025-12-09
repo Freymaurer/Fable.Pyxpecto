@@ -108,20 +108,20 @@ Usage:
   (python/node/npx ts-node/dotnet run) <path_to_entrypoint> [options]
 
 Options:
-  --fail-on-focused-tests       Will exit with ExitCode 4 if run with this argument 
+  --fail-on-focused-tests       Will exit with ExitCode 4 if run with this argument
                                 and focused tests are found.
   --silent                      Only start and result print. No print for each test.
 
-  --do-not-exit-with-code       Will only return integer as result and not explicitly call `Environment.Exit`. 
+  --do-not-exit-with-code       Will only return integer as result and not explicitly call `Environment.Exit`.
                                 This can be useful to call Pyxpecto tests from foreign test frameworks
 
 ```
 
-These can also be given via: 
+These can also be given via:
 
 ```fsharp
 [<EntryPoint>]
-let main argv = 
+let main argv =
     !!Pyxpecto.runTests [|
         ConfigArg.FailOnFocused
         ConfigArg.Silent
@@ -139,13 +139,13 @@ From [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto) with:
 
 ### Language Agnostic
 
-Fable.Pyxpecto does not use any dependencies and tries to support as many fable languages as possible. 
+Fable.Pyxpecto does not use any dependencies and tries to support as many fable languages as possible.
 Check out the [multitarget test project](./tests/Multitarget.Tests) to see it fully set up!
 
 ```fsharp
 open Fable.Pyxpecto
 
-// This is possibly the most magic used to make this work. 
+// This is possibly the most magic used to make this work.
 // Js and ts cannot use `Async.RunSynchronously`, instead they use `Async.StartAsPromise`.
 // Here we need the transpiler not to worry about the output type.
 #if !FABLE_COMPILER_JAVASCRIPT && !FABLE_COMPILER_TYPESCRIPT
@@ -162,25 +162,28 @@ let main argv = !!Pyxpecto.runTests [||] all
 Then run it using:
 
 - **.NET**: `dotnet run`
-- **JavaScript**: 
+- **JavaScript**:
   - `dotnet fable {rootPath} -o {rootPath}/{js_folder_name}`
   - `node {rootPath}/{js_folder_name}/Main.js`
   - *Requirements*:
-    - nodejs installed. 
+    - nodejs installed.
     - package.json with `"type": "module"`.
     - init with `npm init`.
     - See: [package.json](./package.json).
 - **TypeScript**:
   - `dotnet fable {rootPath} --lang ts -o {rootPath}/{ts_folder_name}`
   - `npx ts-node {rootPath}/{ts_folder_name}/Main.ts`
-  - *Requirements*: 
+  - *Requirements*:
     - possible same as JavaScript.
     - Require tsconfig file, see: [tsconfig.json](./tsconfig.json). (💬 Help wanted)
 - **Python**:
   - `dotnet fable {rootPath} --lang py -o {rootPath}/{py_folder_name}`
   - `python {rootPath}/{py_folder_name}/main.py`
-  - *Requirements*: 
-    - python executable on your PATH, or replace `python` with `path/to/python.exe`.
+  - *Requirements*:
+    - python (v>=3.14) executable on your PATH, or replace `python` with `path/to/python.exe`.
+
+        _Might work with versions as low as 3.12_
+    - installed `fable-library` python dependency (`version = "5.0.0a17"`)
 
 ### With Mocha and Expecto
 
@@ -228,14 +231,14 @@ let main argv =
 
 ### Requirements
 
-- Python
-  - check with `py --version` (Tested with `Python 3.11.1`)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+  - check with `uv --version` (Tested with `0.9.13`)
 - [Dotnet SDK](https://dotnet.microsoft.com/en-us/download)
   - check with `dotnet --version` (Tested with `7.0.306`)
 - Node
-  - check with `node --version` (Tested with `v18.16.1`)
+  - check with `node --version` (Tested with `v22`)
 - npm
-  - check with `node --version` (Tested with `9.2.0`)
+  - check with `npm --version` (Tested with `11.6`)
 
 ### Setup
 
@@ -262,3 +265,10 @@ Can be specified to run tests for specific environment.
 - `./build.cmd runmtjs`
 - `./build.cmd runmtts`
 - `./build.cmd runmtnet`
+
+#### Publish
+
+0. Verify all tests pass `./build.cmd runtests`
+1. Update CHANGELOG.md version with changes.
+2. `dotnet pack ./src/Fable.Pyxpecto -o ./pkg`
+3. Upload file from `./pkg` to [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto)

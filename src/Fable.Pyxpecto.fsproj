@@ -5,29 +5,44 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<Authors>Kevin Frey</Authors>
-		<Description>Fable python unit tests, like Fable.Mocha with Expecto syntax.</Description>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageTags>fsharp fable fable-library fable-python fable-dotnet fable-javascript fable-typescript testing unit-testing</PackageTags>
-		<PackageProjectUrl>https://github.com/Freymaurer/Fable.Pyxpecto</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/Freymaurer/Fable.Pyxpecto</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<None Include="../README.md" Pack="true" PackagePath="\"/>
-    <Compile Include="Pyxpecto.fs" />
-	</ItemGroup>
+  <PropertyGroup>
+    <Authors>Kevin Frey</Authors>
+    <Description>Fable python unit tests, like Fable.Mocha with Expecto syntax.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>fsharp fable fable-library fable-python fable-dotnet fable-javascript
+      fable-typescript testing unit-testing</PackageTags>
+    <PackageProjectUrl>https://github.com/Freymaurer/Fable.Pyxpecto</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Freymaurer/Fable.Pyxpecto</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <ChangelogFile>../CHANGELOG.md</ChangelogFile>
+  </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fable.Core" Version="4.1.0" />
-    <PackageReference Include="Fable.Python" Version="4.3.0" />
-    <PackageReference Update="FSharp.Core" Version="5.0.0" />
+    <PackageReference Include="EasyBuild.PackageReleaseNotes.Tasks">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
-	<ItemGroup>
-		<Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="\" />
+    <Compile Include="Pyxpecto.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fable.Core" />
+    <PackageReference Include="Fable.Python" />
+    <PackageReference Include="FSharp.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PythonDependencies>
+      <Package Name="fable-library" Version="&gt;= 5.0.0a17 &lt; 6.0.0" ResolutionStrategy="Max" />
+    </PythonDependencies>
+  </PropertyGroup>
 </Project>
