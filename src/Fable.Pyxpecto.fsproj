@@ -5,21 +5,30 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<Authors>Kevin Frey</Authors>
-		<Description>Fable python unit tests, like Fable.Mocha with Expecto syntax.</Description>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageTags>fsharp fable fable-library fable-python fable-dotnet fable-javascript fable-typescript testing unit-testing</PackageTags>
-		<PackageProjectUrl>https://github.com/Freymaurer/Fable.Pyxpecto</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/Freymaurer/Fable.Pyxpecto</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-	</PropertyGroup>
+  <PropertyGroup>
+    <Authors>Kevin Frey</Authors>
+    <Description>Fable python unit tests, like Fable.Mocha with Expecto syntax.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>fsharp fable fable-library fable-python fable-dotnet fable-javascript
+      fable-typescript testing unit-testing</PackageTags>
+    <PackageProjectUrl>https://github.com/Freymaurer/Fable.Pyxpecto</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Freymaurer/Fable.Pyxpecto</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <ChangelogFile>../CHANGELOG.md</ChangelogFile>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<None Include="../README.md" Pack="true" PackagePath="\"/>
+  <ItemGroup>
+    <PackageReference Include="EasyBuild.PackageReleaseNotes.Tasks">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="\" />
     <Compile Include="Pyxpecto.fs" />
-	</ItemGroup>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Fable.Core" />
@@ -27,9 +36,9 @@
     <PackageReference Include="FSharp.Core" />
   </ItemGroup>
 
-	<ItemGroup>
-		<Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
-	</ItemGroup>
+  <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
+  </ItemGroup>
 
   <PropertyGroup>
     <PythonDependencies>

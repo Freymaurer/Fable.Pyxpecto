@@ -7,24 +7,33 @@ open ProjectInfo
 open BasicTasks
 open Helpers
 
-let runTestsDotNet = BuildTask.create "RunTestsDotnet" [clean; build;] {
-    testProjects
-    |> Seq.iter (fun testProject ->
-        run dotnet "run" testProject
-    )
-}
 
-let runTestsPy = BuildTask.create "RunTestsPy" [clean; build;] {
-    for test in ProjectInfo.testProjects do
-        run dotnet $"fable {test} --lang py -o {test}/py" ""
-        run uv $"run {test}/py/main.py" ""
-}
+module RunMocha =
 
-let runTestsJs = BuildTask.create "RunTestsJs" [clean; build;] {
-    for test in ProjectInfo.testProjects do
-        run dotnet $"fable {test} -o {test}/js" ""
-        run npx $"mocha {test}/js --timeout 20000" ""
-}
+    let testProjects =
+        [
+            // add relative paths (from project root) to your testprojects here
+            "tests/Mocha.Tests"
+        ]
+
+    let runTestsDotNet = BuildTask.create "RunTestsDotnet" [clean; build;] {
+        testProjects
+        |> Seq.iter (fun testProject ->
+            run dotnet "run" testProject
+        )
+    }
+
+    let runTestsPy = BuildTask.create "RunTestsPy" [clean; build;] {
+        for test in testProjects do
+            run dotnet $"fable {test} --lang py -o {test}/py" ""
+            run uv $"run {test}/py/main.py" ""
+    }
+
+    let runTestsJs = BuildTask.create "RunTestsJs" [clean; build;] {
+        for test in testProjects do
+            run dotnet $"fable {test} -o {test}/js" ""
+            run npx $"mocha {test}/js --timeout 20000" ""
+    }
 
 module RunMt =
     let rootPath = @"./tests/Multitarget.Tests"
@@ -44,7 +53,7 @@ module RunMt =
     let ts = BuildTask.create "runMtTs" [clean; build] {
         let ts_folder_name = "ts"
         run dotnet $"fable {rootPath} --lang ts -o {rootPath}/{ts_folder_name}" ""
-        run node $"--loader ts-node/esm {rootPath}/{ts_folder_name}/Main.ts" ""
+        run npx $"tsx {rootPath}/{ts_folder_name}/Main.ts" ""
     }
 
     let net = BuildTask.create "runMtNet" [clean; build] {
@@ -55,7 +64,7 @@ let runMultiTargetTests = BuildTask.create "runMt" [clean; build; RunMt.js; RunM
     ()
 }
 
-let runSwitchTests = BuildTask.create "runswitch" [clean; build; runTestsDotNet; runTestsPy; runTestsJs] {
+let runSwitchTests = BuildTask.create "runswitch" [clean; build; RunMocha.runTestsDotNet; RunMocha.runTestsPy; RunMocha.runTestsJs] {
     ()
 }
 

@@ -5,5 +5,5 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fable-library==5.0.0a17",
+    "fable-library==5.0.0a20",
 ]

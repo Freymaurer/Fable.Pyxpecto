@@ -228,12 +228,10 @@ module CommandLine =
         let sys : obj = nativeOnly
 
         let getArgs() : string [] =
-            printfn "🔍 retrieving commandline arguments ..."
-            printfn "%A" sys
-            !!sys?argv
+            !!sys?argv |> Array.ofSeq
 
         let exitWith (exitCode: int) : unit =
-            !!sys?exit(exitCode)
+            !!sys?exit(nativeint(exitCode))
     #endif
 
     #if (FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT)

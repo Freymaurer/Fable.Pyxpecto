@@ -180,7 +180,9 @@ Then run it using:
   - `dotnet fable {rootPath} --lang py -o {rootPath}/{py_folder_name}`
   - `python {rootPath}/{py_folder_name}/main.py`
   - *Requirements*:
-    - python (v>=3.12) executable on your PATH, or replace `python` with `path/to/python.exe`.
+    - python (v>=3.14) executable on your PATH, or replace `python` with `path/to/python.exe`.
+
+        _Might work with versions as low as 3.12_
     - installed `fable-library` python dependency (`version = "5.0.0a17"`)
 
 ### With Mocha and Expecto
@@ -263,3 +265,10 @@ Can be specified to run tests for specific environment.
 - `./build.cmd runmtjs`
 - `./build.cmd runmtts`
 - `./build.cmd runmtnet`
+
+#### Publish
+
+0. Verify all tests pass `./build.cmd runtests`
+1. Update CHANGELOG.md version with changes.
+2. `dotnet pack ./src/Fable.Pyxpecto -o ./pkg`
+3. Upload file from `./pkg` to [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto)
