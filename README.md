@@ -270,5 +270,10 @@ Can be specified to run tests for specific environment.
 
 0. Verify all tests pass `./build.cmd runtests`
 1. Update CHANGELOG.md version with changes.
-2. `dotnet pack ./src/Fable.Pyxpecto -o ./pkg`
-3. Upload file from `./pkg` to [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto)
+2. Push changes to main branch.
+3. tag and push tags to GitHubt
+    - `git tag X.Y.Z`
+    - `git push --tags`
+4. `dotnet pack ./src/Fable.Pyxpecto -o ./pkg`
+5. Upload file from `./pkg` to [Nuget](https://www.nuget.org/packages/Fable.Pyxpecto)
+6. Make GitHub release from tag.
