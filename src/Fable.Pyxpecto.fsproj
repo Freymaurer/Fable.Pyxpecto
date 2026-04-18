@@ -27,7 +27,15 @@
 
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="\" />
-    <Compile Include="Pyxpecto.fs" />
+    <Compile Include="Prelude.fs" />
+    <Compile Include="Model.fs" />
+    <Compile Include="Assert.fs" />
+    <Compile Include="CommandLine.fs" />
+    <Compile Include="TestDsl.fs" />
+    <Compile Include="Expect.fs" />
+    <Compile Include="Suspect.fs" />
+    <Compile Include="Config.fs" />
+    <Compile Include="PyxpectoRunner.fs" />
   </ItemGroup>
 
   <ItemGroup>
