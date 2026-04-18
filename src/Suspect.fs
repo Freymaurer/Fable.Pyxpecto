@@ -10,7 +10,7 @@ module Suspect =
     /// </summary>
     let stringEqual actual expected message =
         let pattern = @"\s+"
-        let regex = System.Text.RegularExpressions.Regex(pattern, Text.RegularExpressions.RegexOptions.Singleline)
+        let regex = System.Text.RegularExpressions.Regex(pattern, System.Text.RegularExpressions.RegexOptions.Singleline)
         let actual = regex.Replace(actual, "")
         let expected = regex.Replace(expected, "")
         Expect.equal actual expected message

@@ -1,5 +1,6 @@
 namespace Fable.Pyxpecto
 
+open System
 open Fable.Core.Testing
 open Helper
 
