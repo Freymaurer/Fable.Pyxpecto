@@ -1,5 +1,9 @@
 # Agent Guide
 
+## Intention and library design
+
+This library is designed to build a F# Fable transpiler compatible unit test runner. It is designed to target multiple Fable targets.
+
 ## Test and validation commands
 
 Run from repository root (`/home/runner/work/Fable.Pyxpecto/Fable.Pyxpecto`):
